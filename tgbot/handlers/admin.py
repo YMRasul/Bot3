@@ -18,7 +18,7 @@ async def scan_doc(message: types.document):
         src = fil + message.document.file_name
 
         now = datetime.now()  # current date and time
-        date_time = now.strftime("%m/%d/%Y, %H:%M:%S") + ':'
+        date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
         print(date_time,"Сохранен как "+src)
 
         with open(src, 'wb') as new_file:

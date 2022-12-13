@@ -56,8 +56,12 @@ async def load_inn(message: types.Message, state=FSMContakt):
 
         data['innorg'] = innz
 
-    await users_add(state)                                    # Это до state.finish()
+    now = datetime.now()  # current date and time
+    date_time = now.strftime("%Y.%m.%d %H:%M:%S") +':'
+
+    await users_add(state,date_time)  #Это до state.finish()
     await state.finish()
+
     await message.answer("Ma'lumot olish uchun    /info")
 #    print(tuple(data.values()))  # Шу ерда хам ишлаяпти   state.finish() дан олдин булишши керак эди
 
@@ -92,7 +96,7 @@ async def echo_info(message: types.Message):
         phoneNumber = '+' + str(x[1])
 
     now = datetime.now()  # current date and time
-    date_time = now.strftime("%m/%d/%Y, %H:%M:%S") +':'
+    date_time = now.strftime("%Y.%m.%d %H:%M:%S") +':'
 
     print(date_time,idd,phoneNumber,'Bazadan',x)
 

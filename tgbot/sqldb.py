@@ -9,11 +9,11 @@ def sql_start():
     base.execute('''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER, innorg INTEGER,fio TEXT,prz INTEGER)''')
     base.commit()
 
-async def users_add(state):
+async def users_add(state,time):
     async with state.proxy() as data:
         t = tuple(data.values())
 
-    print(t)
+    print(time,t)
 
     r = cur.execute('SELECT idp FROM client WHERE idp == ?',(t[0],)).fetchone()
 
