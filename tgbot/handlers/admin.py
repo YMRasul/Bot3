@@ -1,3 +1,4 @@
+from datetime import datetime
 from aiogram import Dispatcher,types
 from aiogram.types import Message
 from create_bot import bot
@@ -10,16 +11,20 @@ async def admin_start(message: Message):
 #@dp.message_handler(content_types=[types.ContentType.DOCUMENT])
 async def scan_doc(message: types.document):
     try:
-        chat_id = message.chat.id
         file_info = await bot.get_file(message.document.file_id)
         downloaded_file = await bot.download_file(file_info.file_path)
 
         fil = rootpath() + '\\files\\'  # отвратительное решение
         src = fil + message.document.file_name
-        print("Сохранен как "+src)
+
+        now = datetime.now()  # current date and time
+        date_time = now.strftime("%m/%d/%Y, %H:%M:%S") + ':'
+        print(date_time,"Сохранен как "+src)
+
         with open(src, 'wb') as new_file:
             new_file.write(downloaded_file.getvalue())
-            await message.answer("Men buni saqlab qoydim,rahmat!")
+
+        await message.answer("Men buni saqlab qoydim, rahmat!")
     except Exception as e:
         await message.answer(e)
 

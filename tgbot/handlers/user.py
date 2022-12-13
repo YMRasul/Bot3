@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 from aiogram import Dispatcher,types
@@ -90,7 +91,10 @@ async def echo_info(message: types.Message):
         inn = x[0]
         phoneNumber = '+' + str(x[1])
 
-    print(idd,phoneNumber,'Bazadan',x)
+    now = datetime.now()  # current date and time
+    date_time = now.strftime("%m/%d/%Y, %H:%M:%S") +':'
+
+    print(date_time,idd,phoneNumber,'Bazadan',x)
 
     fil = rootpath() + '\\files\\' +str(inn)+'_' + message.text+'.xls' # отвратительное решение
 
