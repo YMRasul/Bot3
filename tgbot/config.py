@@ -31,7 +31,9 @@ class Config:
 
 
 def load_config(path: str = None):
+#    print("sdrfsdfsdgdfgds",path)
     env = Env()
+#    print(env)
     env.read_env(path)
 
     return Config(
