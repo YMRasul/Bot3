@@ -105,17 +105,6 @@ async def scan_doc(message: types.document):
     print("Mumkin emas, admin ro'yhatida mavjud emassiz.")
     await message.answer("Mumkin emas, admin ro'yhatida mavjud emassiz.")
 
-#@dp.message_handler(commands=["sendinn"])
-async def send_inn(message: Message):
-    x = "Bu komanda superuser uchun qilingan !"
-    print(x)
-    await message.answer(x)
-
-#@dp.message_handler(commands=["sendall"])
-async def bot_send(message: Message):
-    await message.answer("Это права Админа")
-
-
 #@dp.message_handler(commands=["help"])
 async def help(message: types.Message):
     print("Help для User")
@@ -185,7 +174,5 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
     dp.register_message_handler(user_info, commands=["info"])
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT])
-    dp.register_message_handler(send_inn, commands = ["sendinn"])
-    dp.register_message_handler(bot_send,commands=["sendall"])
     dp.register_message_handler(help, commands = ["help"])
     dp.register_message_handler(echo_info)
