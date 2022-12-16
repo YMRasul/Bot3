@@ -1,7 +1,7 @@
-from dbsql import Database
+from .sqldb import Database
 
 
-def createTables(db):
+async def createTables(db):
     tables = [
         '''CREATE TABLE IF NOT EXISTS client (user_id INTEGER PRIMARY KEY NOT NULL, phone INTEGER,fio TEXT,active INTEGER)''',
         '''CREATE TABLE IF NOT EXISTS org (id INTEGER PRIMARY KEY NOT NULL, nam)'''
@@ -12,7 +12,7 @@ def createTables(db):
         print('Подключение к базе данных ...')
         # Создание таблиц
         for tab in tables:
-            baza.createTable(tab)
+            await baza.createTable(tab)
     except:
         e=0
         print('Нет связи с базой данных ...')

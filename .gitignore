@@ -53,6 +53,7 @@ __pypackages__/
 systemd/
 .venv
 env/
+files/
 venv/
 ENV/
 env.bak/
