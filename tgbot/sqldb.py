@@ -6,6 +6,16 @@ class Database:
     def __init__(self, dbFile):
         self.base = sq.connect(dbFile)
         self.cur = self.base.cursor()
+        self.createTables()
+
+    def createTables(self):
+        tables = [
+            '''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER,innorg INTEGER,fio TEXT,prz INTEGER)''',
+            '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER)'''
+        ]
+        for tab in tables:
+            print(tab)
+            self.createTable(tab)
 
     def message(self, mess):
         print(mess)
@@ -14,7 +24,7 @@ class Database:
         self.cur.close()
         self.base.close()
 
-    async def createTable(self, table):
+    def createTable(self, table):
         with self.base:
             self.cur.execute(table)
 
@@ -77,7 +87,8 @@ class Database:
             else:
                 print("Insert INN ")
                 self.cur.execute('INSERT INTO org VALUES (?,?)', (inn, prz,))
-    async def reg_id(self,user_id,inn,tel):
+
+    async def reg_id(self, user_id, inn, tel):
         with self.base:
             r = self.cur.execute('SELECT idp FROM client WHERE idp == ?', (user_id,)).fetchmany(1)
             print(r)
@@ -86,7 +97,8 @@ class Database:
                 self.cur.execute('UPDATE client SET  phone==?,innorg==?,prz==? WHERE idp ==?', (tel, inn, 1, user_id,))
             else:
                 print('Insert')
-                return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (user_id, tel, inn,'', 1,))
+                return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (user_id, tel, inn, '', 1,))
+
     async def poisk_id(self, user_id, fileName):
         e = True
         try:
@@ -122,8 +134,3 @@ async def create_connection(dbFile):
     except Error as e:
         print(f"The error '{e}' occurred")
     return connection
-
-
-def poisk_id(user_id):
-    print(user_id, "Ne imeet pravo...")
-    return True

@@ -9,7 +9,6 @@ config = load_config(".env")
 storage = MemoryStorage()
 
 con = Database('dbase_sqlite.db')
-
 bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
 dp = Dispatcher(bot, storage=storage)
 

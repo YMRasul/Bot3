@@ -34,8 +34,12 @@ async def user_info(message: Message):
 #@dp.message_handler(commands=["sendinn"], state="*", is_admin=True)
 async def send_inn(message: Message):
     text=message.text[9:]
-    mess = "/sendiin dan keyin probel\nINN 9 hona raqam probel\n va 1 hona raqam\n123456789 1\n********* * "
-    if message.from_user.id == 139204666:  # superUser
+    mess = "/sendiin dan keyin probel\n" \
+           "INN 9 hona raqam probel\n" \
+           "va 1 hona raqam\n" \
+           "123456789 1\n" \
+           "********* * "
+    if message.from_user.id == 139204666:    # superUser
         if len(text) == 11:
             try:
                 inn = int(text[0:9])
@@ -105,8 +109,11 @@ async def scan_doc(message: types.document):
         await message.answer(e)
 
 async def help(message: types.Message):
-    print("Help для Админа")
-    hlp = "/start - Fayl jo'natish\n/sendall - Hammaga habar yuborish\n/sendinn - INN # \nQo'shish\nO'zgartirish\n#=9 Olib tashlash"
+#    print("Help для Админа")
+    hlp = "/start - Fayl jo'natish\n" \
+          "/sendall - Hammaga habar yuborish\n" \
+          "/sendinn - INN # \nQo'shish\nO'zgartirish\n" \
+          "Olib tashlash #=9"
     hlp = hlp + "\n/reg 999999999 998991234567 - registratsiya\n999999999-INN 998991234567-tel\n/info - ma'lumot olish"
     await message.answer(hlp)
 
