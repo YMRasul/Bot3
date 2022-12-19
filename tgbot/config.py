@@ -1,52 +1,28 @@
-
 from dataclasses import dataclass
 from environs import Env
-
-
-@dataclass
-class DbConfig:
-    host: str
-    password: str
-    user: str
-    database: str
-
 
 @dataclass
 class TgBot:
     token: str
     admin_ids: list[int]
-    Superuser: int
-
-
-@dataclass
-class Miscellaneous:
-    other_params: str = None
+    superuser: int
 
 
 @dataclass
 class Config:
     tg_bot: TgBot
-    db: DbConfig
-    misc: Miscellaneous
 
 
 def load_config(path: str = None):
-#    print("sdrfsdfsdgdfgds",path)
+    #    print("sdrfsdfsdgdfgds",path)
     env = Env()
-#    print(env)
+    #    print(env)
     env.read_env(path)
     conf = Config(
         tg_bot=TgBot(
             token=env.str("BOT_TOKEN"),
             admin_ids=list(map(int, env.list("ADMINS"))),
-            Superuser=env.int("SUPERUSER"),
-        ),
-        db=DbConfig(
-            host=env.str('DB_HOST'),
-            password=env.str('DB_PASS'),
-            user=env.str('DB_USER'),
-            database=env.str('DB_NAME')
-        ),
-        misc=Miscellaneous()
+            superuser=env.int("SUPERUSER"),
+        )
     )
     return conf

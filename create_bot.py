@@ -15,5 +15,5 @@ dp = Dispatcher(bot, storage=storage)
 bot['config'] = config
 
 conf: Config = bot.get('config')
-superuser = conf.tg_bot.Superuser
+superuser = conf.tg_bot.superuser
 
