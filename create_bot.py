@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher
-from tgbot.config import load_config
+from tgbot.config import load_config,Config
 from tgbot.sqldb import Database
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
@@ -13,3 +13,7 @@ bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
 dp = Dispatcher(bot, storage=storage)
 
 bot['config'] = config
+
+conf: Config = bot.get('config')
+superuser = conf.tg_bot.Superuser
+

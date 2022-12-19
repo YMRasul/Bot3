@@ -11,7 +11,8 @@ class Database:
     def createTables(self):
         tables = [
             '''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER,innorg INTEGER,fio TEXT,prz INTEGER)''',
-            '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER)'''
+            '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER)''',
+            '''CREATE TABLE IF NOT EXISTS admin  (admin_id INTEGER PRIMARY KEY NOT NULL)'''
         ]
         for tab in tables:
             print(tab)
@@ -73,6 +74,32 @@ class Database:
         with self.base:
             r = self.cur.execute('SELECT inn FROM org WHERE inn == ?', (user_inn,)).fetchmany(1)
             return bool(len(r))
+    async def admin_exists(self, id):
+        with self.base:
+            r = self.cur.execute('SELECT admin_id FROM admin WHERE admin_id == ?', (id,)).fetchmany(1)
+            return bool(len(r))
+    async def admin_add(self, id):
+        with self.base:
+            return self.cur.execute('INSERT INTO admin VALUES (?)', (id,))
+    async def admin_del(self, id):
+        with self.base:
+            return self.cur.execute('DELETE FROM admin WHERE admin_id==?', (id,))
+    async def admins(self):
+        x = []
+        with self.base:
+            r = self.cur.execute('SELECT admin_id FROM  admin').fetchall()
+        if len(r)!=0:
+           for i in r:
+               x.append(i[0])
+        return x
+
+    async def admins_info(self):
+        with self.base:
+            return self.cur.execute('select admin_id,\
+                                            (select client.innorg from client where client.idp=admin.admin_id),\
+                                            (select client.phone from client where client.idp=admin.admin_id),\
+                                            (select client.fio from client where client.idp=admin.admin_id) \
+                                     from admin').fetchall()
 
     async def inn_add(self, inn, prz):
         with self.base:

@@ -6,7 +6,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 
-from create_bot import con
+from create_bot import con,bot
 
 from tgbot.keyboards.client_kb import kb_client, mas
 from .kwit import readxls
@@ -106,9 +106,16 @@ async def scan_doc(message: types.document):
     await message.answer("Mumkin emas, admin ro'yhatida mavjud emassiz.")
 
 #@dp.message_handler(commands=["help"])
+async def ok(message: types.Message):
+    print("Отправка админу сообщение о себе id_user="+str(message.from_user.id))
+    if (message.chat.type == 'private'):
+        await bot.send_message(139204666,"User_id "+ str(message.from_user.id))
+
 async def help(message: types.Message):
     print("Help для User")
-    await message.answer("/start - Registratsiya\n/info - Ma'lumot olish")
+    await message.answer("/start - Registratsiya\n"
+                         "/info - Ma'lumot olish\n"
+                         "/ok - Status")
 
 async def echo_info(message: types.Message):
     idd = message.chat.id
@@ -174,5 +181,6 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
     dp.register_message_handler(user_info, commands=["info"])
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT])
+    dp.register_message_handler(ok, commands = ["ok"])
     dp.register_message_handler(help, commands = ["help"])
     dp.register_message_handler(echo_info)
