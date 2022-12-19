@@ -5,6 +5,7 @@ from create_bot import bot, con, superuser
 from .user import rootpath
 from tgbot.keyboards.client_kb import kb_client, mas
 from tgbot.config import Config
+import os
 
 
 # @dp.message_handler(commands=["start"], state="*", is_admin=True)
@@ -16,7 +17,7 @@ async def admin_start(message: Message):
 async def adm_reg(message: Message):
     text = message.text[10:]
     s = text[0:].strip()
-    if message.from_user.id == 139204666:  # superUser
+    if message.from_user.id == superUser:
         try:
             id = int(s)
             print("Регистрация по команде /regadmin", id)
@@ -170,8 +171,8 @@ async def scan_doc(message: types.document):
     try:
         file_info = await bot.get_file(message.document.file_id)
         downloaded_file = await bot.download_file(file_info.file_path)
-
-        fil = rootpath() + '\\files\\'  # отвратительное решение
+        path_sep = os.path.sep
+        fil = rootpath() + path_sep + 'files' + path_sep
         src = fil + message.document.file_name
 
         now = datetime.now()  # current date and time
@@ -198,7 +199,7 @@ async def help(message: types.Message):
 
     if message.from_user.id == superuser:  # superUser
         hlp = hlp + "\nSuperuser\n/sendinn - INN # \nQo'shish\nO'zgartirish\nOlib tashlash #=9\n"
-        hlp = hlp + "/addamin - 'addamin ID'\n/deladmin - 'deladmin ID'\n/admins"
+        hlp = hlp + "/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins"
 
     await message.answer(hlp)
 

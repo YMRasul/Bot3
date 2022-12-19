@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -17,7 +18,7 @@ from .kwit import readxls
 
 def rootpath() -> Path:
     """Returns project root folder."""
-    return str(Path(__file__).parent.parent.parent)  # Тут выход в корень проекта
+    return str(Path(__file__).parent.parent.parent)  # Тут выход в корень проекта //TODO выход в корень проекта
 
 
 '''
@@ -131,7 +132,9 @@ async def echo_info(message: types.Message):
 
     print(date_time, idd, phoneNumber, 'Bazadan', x)
 
-    fil = rootpath() + '\\files\\' + str(inn) + '_' + message.text + '.xls'  # отвратительное решение
+    path_sep = os.path.sep
+    fil = rootpath() +  path_sep + 'files' + path_sep + str(inn) + '_' + message.text + '.xls'
+    print(fil)
 
     if message.text == mas[0]:
         sss = await readxls(fil, phoneNumber)

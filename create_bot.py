@@ -12,8 +12,7 @@ con = Database('dbase_sqlite.db')
 bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
 dp = Dispatcher(bot, storage=storage)
 
-bot['config'] = config
+superuser = config.tg_bot.superuser
 
-conf: Config = bot.get('config')
-superuser = conf.tg_bot.superuser
+bot['config'] = config
 

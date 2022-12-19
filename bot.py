@@ -1,12 +1,13 @@
 import logging
 
-from create_bot import dp,con
+from create_bot import dp, con
 from aiogram.utils import executor
 
 from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
 from tgbot.handlers.echo import register_echo
 from tgbot.handlers.user import register_user
+
 
 def register_all_filters(dp):
     dp.filters_factory.bind(AdminFilter)
@@ -22,9 +23,10 @@ async def on_startup(_):
     con.message("Соединение с базой данных ...")
     print('Bot вышел в online ...')
 
+
 async def on_shutdown(_):
     print('Закрытие соединение ...')
-    con.close()   #   stop
+    con.close()  # stop
     print('Bot закончил работу ...')
 
 
@@ -35,9 +37,6 @@ logging.basicConfig(
     format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
 )
 logger.info("Start Bot ...  (запуск)")
-
-#createTables('dbase_sqlite.db')
-
 
 register_all_filters(dp)  # Если Admin, то этот будет работат
 register_all_handlers(dp)

@@ -15,7 +15,7 @@ class Database:
             '''CREATE TABLE IF NOT EXISTS admin  (admin_id INTEGER PRIMARY KEY NOT NULL)'''
         ]
         for tab in tables:
-            print(tab)
+#            print(tab)
             self.createTable(tab)
 
     def message(self, mess):
