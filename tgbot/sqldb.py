@@ -100,6 +100,9 @@ class Database:
                                             (select client.phone from client where client.idp=admin.admin_id),\
                                             (select client.fio from client where client.idp=admin.admin_id) \
                                      from admin').fetchall()
+    async def inn_info(self):
+        with self.base:
+            return self.cur.execute('select inn,prz from org').fetchall()
 
     async def inn_add(self, inn, prz):
         with self.base:

@@ -1,3 +1,4 @@
+import shlex
 from datetime import datetime
 from aiogram import Dispatcher, types
 from aiogram.types import Message
@@ -139,6 +140,39 @@ async def send_inn(message: Message):
         print("Не SuperUser дает команду /sendinn")
         await message.answer("Это команда SuperUserа")
 
+#dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
+async def info_inn(message: Message):
+    if message.from_user.id == superuser:  # superUser
+        inns = await con.inn_info()
+        for inn in inns:
+            await message.answer(str(inn[0]) +' ' +str(inn[1]))
+            print(str(inn[0]) +' ' +str(inn[1]))
+    else:
+        print("Не SuperUser дает команду /inns")
+        await message.answer("Это команда SuperUserа")
+
+# @dp.message_handler(commands=["sendadm"], is_admin=True)
+async def send_adm(message: Message):
+    config: Config = bot.get('config')
+    user_id = message.from_user.id
+
+    if message.from_user.id == superuser:  # superUser
+        adms = await con.admins_info()
+        for x in config.tg_bot.admin_ids:
+            adms.append(tuple([int(x),]))
+#        for adm in adms:
+#            print(adm[0])
+        if message.chat.type == 'private':
+            text = message.text[9:]
+            for adm in adms:
+                if adm[0] != message.from_user.id:
+                    try:
+                        await bot.send_message(adm[0], text)
+                        await bot.send_message(message.from_user.id, 'Рассылка админу ' + str(adm[0]))
+                        print("Рассылка админу " + str(adm[0]))
+                    except:
+                        await bot.send_message(message.from_user.id, "Admin " + str(adm[0]) + " не активен")
+                        print("Admin " + str(adm[0]) + " не активен")
 
 # @dp.message_handler(commands=["sendall"], is_admin=True)
 async def send_all(message: Message):
@@ -195,11 +229,12 @@ async def help(message: types.Message):
     #    print("Help для Админа")
     hlp = "/start - Fayl jo'natish\n" \
           "/sendall - Hammaga habar yuborish\n"
-    hlp = hlp + "/reg 999999999 998991234567 - registratsiya\n999999999-INN 998991234567-tel\n/info - ma'lumot olish\n"
+    hlp = hlp + "/reg INN Tel -registratsiya\n     INN- 9 hona raqam, tel- 998 bilan\n\n/info - ma'lumot olish\n"
 
     if message.from_user.id == superuser:  # superUser
-        hlp = hlp + "\nSuperuser\n/sendinn - INN # \nQo'shish\nO'zgartirish\nOlib tashlash #=9\n"
-        hlp = hlp + "/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins"
+        hlp = hlp + "\nSuperuser\n\n/sendinn INN # \nДобавить\nИзменит\nУдалить #=9"
+        hlp = hlp + "\n/inns - 'список ORG'\n"
+        hlp = hlp + "\n/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'"
 
     await message.answer(hlp)
 
@@ -212,6 +247,8 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(user_reg, commands=["reg"], state="*", is_admin=True)
     dp.register_message_handler(user_info, commands=["info"], state="*", is_admin=True)
     dp.register_message_handler(send_inn, commands=["sendinn"], state="*", is_admin=True)
+    dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
+    dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT], is_admin=True)
     dp.register_message_handler(help, commands=["help"], state="*", is_admin=True)
