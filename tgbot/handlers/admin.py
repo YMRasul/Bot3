@@ -17,7 +17,7 @@ async def admin_start(message: Message):
 async def adm_reg(message: Message):
     text = message.text[10:]
     s = text[0:].strip()
-    if message.from_user.id == superUser:
+    if message.from_user.id == superuser:
         try:
             id = int(s)
             print("Регистрация по команде /regadmin", id)

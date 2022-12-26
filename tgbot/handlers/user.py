@@ -44,8 +44,9 @@ async def com_start(message: types.Message):
 # ловим первый ответ и пишем словарь
 async def send_phone(message: types.Message, state=FSMContakt):
     async with state.proxy() as data:
-        data['idp'] = int(str(message.contact.user_id))
-        data['phone'] = int(str(message.contact.phone_number))
+        tel = str(message.contact.phone_number).strip()
+        data['idp'] = int(str(message.contact.user_id).strip())
+        data['phone'] = int(''.join(tel.split(' ')))
         data['fio'] = message.contact.full_name
     await FSMContakt.next()
     await message.answer('Tashkilot INN raqamini yuboring !', reply_markup=ReplyKeyboardRemove())

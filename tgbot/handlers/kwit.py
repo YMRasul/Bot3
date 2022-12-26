@@ -7,7 +7,6 @@ async def readxls(filexls, nomertel):
      '''
 
     sss = ''
-
     try:
         book = xlrd.open_workbook(filexls)
         sheet = book.sheet_by_index(0)
@@ -16,12 +15,12 @@ async def readxls(filexls, nomertel):
 
         nomercol = 0
 
-        tel = ''
         nomertel1 = str(int(nomertel))
 
         for m in range(row):
-            tel = sheet.cell_value(m, 0)
-            if (tel == nomertel or tel == nomertel1):
+            tel = ''.join(str(sheet.cell_value(m, 0)).strip().split(' '))
+            if (nomertel==tel  or nomertel1==tel):
+                print(nomertel,sheet.cell_value(m, 0))
                 nomercol = m
                 break
 
