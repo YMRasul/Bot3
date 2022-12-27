@@ -5,8 +5,10 @@ async def readxls(filexls, nomertel):
     ''' читаем .xls файла с помощью xlrd для чтение .xlsx  openpyxl.
         находим данные из файла по номеру телефона
      '''
-
+    mess = ''
+#    sss = '<strong>'
     sss = ''
+#    < b > bold < / b >
     try:
         book = xlrd.open_workbook(filexls)
         sheet = book.sheet_by_index(0)
@@ -24,7 +26,7 @@ async def readxls(filexls, nomertel):
                 nomercol = m
                 break
 
-        frm = 25
+        frm = 18
 
         if nomercol > 0:
             for i in range(1, col):
@@ -32,13 +34,22 @@ async def readxls(filexls, nomertel):
                     sh = sheet.cell_value(2, i)[0:frm].ljust(frm, '.')
                     dn = sheet.cell_value(nomercol, i)
                     if (dn != 0.0):
-                        sss = sss + sh + ' ' + "{:9.2f}".format(dn).strip() + '\n'
+                        sss = sss + sh + ' ' + "{:9.2f}".format(dn).strip().rjust(11) + '\n'
                 else:
-                    sh = sheet.cell_value(2, i).strip()
-                    dn = sheet.cell_value(nomercol, i)
-                    if (type(dn) == float):
-                        dn = str(int(dn))
-                    sss = sss + sh + ' ' + dn + '\n'
+                    if i==9:
+                        sss = sss + '\n'
+                        mess = sheet.cell_value(nomercol, i)
+                    else:
+                        sh = sheet.cell_value(2, i).strip()
+                        dn = sheet.cell_value(nomercol, i)
+                        if (type(dn) == float):
+                            dn = str(int(dn))
+                        sss = sss + sh + ' ' + dn + '\n'
+            if mess!='':
+                try:
+                    int(mess)
+                except:
+                    sss = mess +'\n\n' + sss
         else:
             sss = ''
             print(nomertel + ' nomeri ' + filexls + ' da faylida topilmadi')
@@ -51,8 +62,11 @@ async def readxls(filexls, nomertel):
     if sss == '':
         sss = "Ma'lumot topilmadi..." + "\n"
 
-    return sss
+#    return '<strong>' + sss + '</strong>'
+#    return '<em>'+ sss +'</em>'
+    return '<code>'+ sss +  '</code>'
 
+#<code>inline fixed-width code</code>
 
 # -----------------------------------------------
 '''
