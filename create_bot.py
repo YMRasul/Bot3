@@ -6,6 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 config = load_config(".env")
 #config = load_config()
 
+
 storage = MemoryStorage()
 
 con = Database('dbase_sqlite.db')
