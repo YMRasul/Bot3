@@ -21,13 +21,14 @@ def register_all_handlers(dp):
 
 
 async def on_startup(_):
-    await bot.set_webhook('https://63.250.60.45:80/Bot3')
+    #WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+#    await bot.set_webhook('https://63.250.60.45:80/Bot3')
     con.message("Соединение с базой данных ...")
     print('Bot вышел в online ...')
 
 
 async def on_shutdown(_):
-    await bot.delete_webhook()
+#    await bot.delete_webhook()
     print('Закрытие соединение ...')
     con.close()  # stop
     print('Bot закончил работу ...')
@@ -45,7 +46,9 @@ register_all_filters(dp)  # Если Admin, то этот будет работ�
 register_all_handlers(dp)
 
 if __name__ == '__main__':
-#    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
+'''
+    Запускается  но нереагирует
     executor.start_webhook(
         dispatcher=dp,
         webhook_path='',
@@ -55,3 +58,4 @@ if __name__ == '__main__':
         host='0.0.0.0',
         port=5000
         )
+'''
