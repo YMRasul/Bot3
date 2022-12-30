@@ -10,10 +10,12 @@ config = load_config(".env")
 storage = MemoryStorage()
 
 con = Database('dbase_sqlite.db')
-bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+bot = Bot(token=config.tg_bot.token,parse_mode='HTML')
 dp = Dispatcher(bot, storage=storage)
 
+
 superuser = config.tg_bot.superuser
+url_app = config.tg_bot.url_app
 
 bot['config'] = config
 

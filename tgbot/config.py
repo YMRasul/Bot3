@@ -6,13 +6,14 @@ class TgBot:
     token: str
     admin_ids: list
     superuser: int
-
+    url_app: str
 
 @dataclass
 class Config:
     tg_bot: TgBot
 
 
+# WEBHOOK_URL = f"https://{WEBHOOK_HOST}:{WEBHOOK_PORT}{WEBHOOK_URL_PATH}"
 def load_config(path: str = None):
     #    print("sdrfsdfsdgdfgds",path)
     env = Env()
@@ -23,6 +24,7 @@ def load_config(path: str = None):
             token=env.str("BOT_TOKEN"),
             admin_ids=list(map(int, env.list("ADMINS"))),
             superuser=env.int("SUPERUSER"),
+            url_app=env.str("URL_APP")
         )
     )
     return conf

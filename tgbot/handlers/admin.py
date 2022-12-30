@@ -2,7 +2,7 @@ import shlex
 from datetime import datetime
 from aiogram import Dispatcher, types
 from aiogram.types import Message
-from create_bot import bot, con, superuser
+from create_bot import bot, con, superuser,url_app
 from .user import rootpath
 from tgbot.keyboards.client_kb import kb_client, mas
 from tgbot.config import Config
@@ -108,7 +108,7 @@ async def user_reg(message: Message):
 
 async def user_info(message: Message):
     inn = await con.get_inn(message.chat.id)
-    print(inn)
+    print(inn,'URL_APP=',url_app)
     await message.answer("Ma'lumot olish\n" + str(inn[0]), reply_markup=kb_client)
 
 
