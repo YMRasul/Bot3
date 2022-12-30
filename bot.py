@@ -21,7 +21,7 @@ def register_all_handlers(dp):
 
 
 async def on_startup(_):
-    await bot.set_webhook('https://63.250.60.45:80/root/Bot3')
+    await bot.set_webhook('https://63.250.60.45:80/Bot3')
     con.message("Соединение с базой данных ...")
     print('Bot вышел в online ...')
 
