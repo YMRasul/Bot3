@@ -22,7 +22,7 @@ def register_all_handlers(dp):
 
 async def on_startup(_):
     #WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
-    await bot.set_webhook('https://63.250.60.45:5000/Bot3')
+    await bot.set_webhook('https://63.250.60.45:8443/Bot3')
     con.message("Соединение с базой данных ...")
     print('Bot вышел в online ...')
 
@@ -55,5 +55,5 @@ if __name__ == '__main__':
         on_shutdown=on_shutdown,
         skip_updates=True,
         host='0.0.0.0',
-        port=5000
+        port=8443
         )
