@@ -18,7 +18,7 @@ WEBHOOK_URL = WEBHOOK_HOST+WEBHOOK_PATH
 print(WEBHOOK_URL)
 
 # webserver settings
-WEBAPP_HOST = 'localhost'  # or ip
+WEBAPP_HOST = '0.0.0.0'  # or ip
 WEBAPP_PORT = 443
 
 
