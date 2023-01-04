@@ -10,6 +10,15 @@ from tgbot.handlers.echo import register_echo
 from tgbot.handlers.user import register_user
 
 
+WEBHOOK_HOST = 'https://63-250-60-45.cloud-xip.com'
+WEBHOOK_PATH = '/Bot3'
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+# webserver settings
+WEBAPP_HOST = 'localhost'  # or ip
+WEBAPP_PORT = 8443
+
+
 def register_all_filters(dp):
     dp.filters_factory.bind(AdminFilter)
 
@@ -22,7 +31,10 @@ def register_all_handlers(dp):
 
 async def on_startup(_):
     #WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
-    await bot.set_webhook('https://63.250.60.45:8443/Bot3')
+    # 63-250-60-45.cloud-xip.com
+#    await bot.set_webhook('https://63-250-60-45.cloud-xip.com/Bot3')
+#    await bot.set_webhook('https://63.250.60.45:8443/Bot3')
+    await bot.set_webhook(WEBHOOK_URL)
     con.message("Соединение с базой данных ...")
     print('Bot вышел в online ...')
 
@@ -50,10 +62,10 @@ if __name__ == '__main__':
 #    Запускается  но нереагирует
     executor.start_webhook(
         dispatcher=dp,
-        webhook_path='',
+        webhook_path=WEBHOOK_PATH,
         on_startup=on_startup,
         on_shutdown=on_shutdown,
         skip_updates=True,
-        host='0.0.0.0',
-        port=8443
+        host=WEBAPP_HOST,
+        port=WEBAPP_PORT,
         )
