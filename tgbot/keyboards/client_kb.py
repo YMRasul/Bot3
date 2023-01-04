@@ -1,9 +1,11 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from datetime import date
+from create_bot import today
 
-today = date.today()
 y = int(today.strftime("%Y"))
 m = int(today.strftime("%m"))
+
+#print('------------------------------------------------------------',today)
+
 i = 12
 mas = []
 
@@ -25,3 +27,4 @@ for i in range(12):
 kb_client.row(b[0], b[1], b[2], b[3])
 kb_client.row(b[4], b[5], b[6], b[7])
 kb_client.row(b[8], b[9], b[10], b[11])
+

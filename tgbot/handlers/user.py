@@ -98,9 +98,7 @@ async def cancel_hendler(message: types.Message, state=FSMContakt):
 # ответ на команду /info
 async def user_info(message: Message):
     inn = await con.get_inn(message.chat.id)
-    print(inn)
     await message.answer("Ma'lumot olish\n" + str(inn[0]), reply_markup=kb_client)
-
 
 # @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
 async def scan_doc(message: types.document):

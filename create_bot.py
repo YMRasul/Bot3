@@ -2,6 +2,9 @@ from aiogram import Bot, Dispatcher
 from tgbot.config import load_config,Config
 from tgbot.sqldb import Database
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from datetime import date
+
+today = date.today()
 
 config = load_config(".env")
 #config = load_config()

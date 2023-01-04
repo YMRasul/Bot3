@@ -2,9 +2,9 @@ import shlex
 from datetime import datetime
 from aiogram import Dispatcher, types
 from aiogram.types import Message
-from create_bot import bot, con, superuser,url_app
+from create_bot import bot, con, superuser,url_app,today
 from .user import rootpath
-from tgbot.keyboards.client_kb import kb_client, mas
+from tgbot.keyboards.client_kb import kb_client   #, mas
 from tgbot.config import Config
 import os
 
