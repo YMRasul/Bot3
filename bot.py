@@ -13,7 +13,9 @@ from tgbot.handlers.user import register_user
 WEBHOOK_HOST = 'https://63-250-60-45.cloud-xip.com'
 WEBHOOK_PATH = '/Bot3'
 #WEBHOOK_PATH = '/path/to/api'
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+WEBHOOK_URL = WEBHOOK_HOST+WEBHOOK_PATH
+
+print(WEBHOOK_URL)
 
 # webserver settings
 WEBAPP_HOST = 'localhost'  # or ip
