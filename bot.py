@@ -10,7 +10,7 @@ from tgbot.handlers.echo import register_echo
 from tgbot.handlers.user import register_user
 
 
-WEBHOOK_HOST = 'https://63-250-60-45.cloud-xip.com'
+WEBHOOK_HOST = 'https://63.250.60.45:443'
 WEBHOOK_PATH = '/Bot3'
 #WEBHOOK_PATH = '/path/to/api'
 WEBHOOK_URL = WEBHOOK_HOST+WEBHOOK_PATH
@@ -19,7 +19,7 @@ print(WEBHOOK_URL)
 
 # webserver settings
 WEBAPP_HOST = '0.0.0.0'  # or ip
-WEBAPP_PORT = 443
+WEBAPP_PORT = 5000
 
 
 def register_all_filters(dp):
