@@ -7,22 +7,8 @@ from .user import rootpath
 from tgbot.keyboards.client_kb import kb_client   #, mas
 from tgbot.keyboards.inline import inline_kb1
 from tgbot.config import Config
-import os
+import os,shutil
 
-##########################################################################
-#@dp.callback_query_handler(text='button1)
-async def process_callback_button1(callback: types.CallbackQuery):
-#    await callback.message.answer('Нажата кнопка')
-#    await callback.answer('Ok.')
-    await callback.answer('Ok.',show_alert=True)
-
-
-
-#@dp.message_handler(commands=['1'])
-async def process_command_1(message: types.Message):
-    await message.reply("Первая инлайн кнопка", reply_markup=inline_kb1)
-
-########################################################################
 
 
 # @dp.message_handler(commands=["start"], state="*", is_admin=True)
@@ -240,6 +226,32 @@ async def scan_doc(message: types.document):
         await message.answer(e)
 
 
+async def copydoc(message: types.Message):
+    file1 = 'dbase_sqlite.db'
+    if message.from_user.id == superuser:  # superUser
+        path_sep = os.path.sep
+        fil = rootpath() + path_sep + 'files' + path_sep
+        fil1 = rootpath()  + path_sep
+
+        text = message.text[5:]
+
+        dest = text.strip()  # путь к папке
+        src = fil1 + file1
+
+        shutil.copy2(src, dest)
+        print(src + ' to ' + dest)
+
+        if not os.path.exists(dest):  # Если пути не существует создаем его
+            os.makedirs(dest)
+
+        for root,dirs,files in os.walk(fil):
+            for filename in files:
+                src = fil + filename
+                dest = text.strip()  # путь к папке
+                shutil.copy2(src, dest)
+                print(src + ' to ' + dest)
+        await message.answer(dest)
+
 async def help(message: types.Message):
     #    print("Help для Админа")
     hlp = "/start - Fayl jo'natish\n" \
@@ -250,15 +262,12 @@ async def help(message: types.Message):
         hlp = hlp + "\nSuperuser\n\n/sendinn INN # \nДобавить\nИзменит\nУдалить #=9"
         hlp = hlp + "\n/inns - 'список ORG'\n"
         hlp = hlp + "\n/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'"
-
+        hlp = hlp + "\n/copy dir -  ( copy c:/!!! )"
     #await message.answer('<code>' + hlp + '</code>')
     await message.answer( hlp)
 
 
 def register_admin(dp: Dispatcher):
-    dp.register_callback_query_handler(process_callback_button1,text='button1', is_admin=True)
-    dp.register_message_handler(process_command_1, commands=["1"], is_admin=True)
-
     dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
     dp.register_message_handler(adm_reg, commands=["addadmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
@@ -270,4 +279,6 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT], is_admin=True)
+
+    dp.register_message_handler(copydoc, commands=["copy"], state="*", is_admin=True)
     dp.register_message_handler(help, commands=["help"], state="*", is_admin=True)
