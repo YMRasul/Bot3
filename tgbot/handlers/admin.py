@@ -235,13 +235,17 @@ async def copydoc(message: types.Message):
 
         src = fil1 + file1
         doc = open(src, 'rb')
+        i = 1
         await message.reply_document(doc)
+        print(i,'Получен файл',src)
 
         for root,dirs,files in os.walk(fil):
             for filename in files:
                 src = fil + filename
                 doc = open(src,'rb')
                 await message.reply_document(doc)
+                i = i + 1
+                print(i,'Получен файл',src)
 
 async def help(message: types.Message):
     #    print("Help для Админа")
@@ -253,7 +257,7 @@ async def help(message: types.Message):
         hlp = hlp + "\nSuperuser\n\n/sendinn INN # \nДобавить\nИзменит\nУдалить #=9"
         hlp = hlp + "\n/inns - 'список ORG'\n"
         hlp = hlp + "\n/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'"
-        hlp = hlp + "\n/copy)"
+        hlp = hlp + "\n/copy"
     #await message.answer('<code>' + hlp + '</code>')
     await message.answer( hlp)
 
