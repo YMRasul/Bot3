@@ -18,7 +18,6 @@ dp = Dispatcher(bot, storage=storage)
 
 
 superuser = config.tg_bot.superuser
-url_app = config.tg_bot.url_app
 
 bot['config'] = config
 

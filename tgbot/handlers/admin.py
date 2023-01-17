@@ -2,11 +2,27 @@ import shlex
 from datetime import datetime
 from aiogram import Dispatcher, types
 from aiogram.types import Message
-from create_bot import bot, con, superuser,url_app,today
+from create_bot import bot, con, superuser,today
 from .user import rootpath
 from tgbot.keyboards.client_kb import kb_client   #, mas
+from tgbot.keyboards.inline import inline_kb1
 from tgbot.config import Config
 import os
+
+##########################################################################
+#@dp.callback_query_handler(text='button1)
+async def process_callback_button1(callback: types.CallbackQuery):
+#    await callback.message.answer('Нажата кнопка')
+#    await callback.answer('Ok.')
+    await callback.answer('Ok.',show_alert=True)
+
+
+
+#@dp.message_handler(commands=['1'])
+async def process_command_1(message: types.Message):
+    await message.reply("Первая инлайн кнопка", reply_markup=inline_kb1)
+
+########################################################################
 
 
 # @dp.message_handler(commands=["start"], state="*", is_admin=True)
@@ -108,7 +124,6 @@ async def user_reg(message: Message):
 
 async def user_info(message: Message):
     inn = await con.get_inn(message.chat.id)
-    print(inn,'URL_APP=',url_app)
     await message.answer("Ma'lumot olish\n" + str(inn[0]), reply_markup=kb_client)
 
 
@@ -240,6 +255,9 @@ async def help(message: types.Message):
 
 
 def register_admin(dp: Dispatcher):
+    dp.register_callback_query_handler(process_callback_button1,text='button1', is_admin=True)
+    dp.register_message_handler(process_command_1, commands=["1"], is_admin=True)
+
     dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
     dp.register_message_handler(adm_reg, commands=["addadmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
