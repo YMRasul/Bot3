@@ -2,7 +2,7 @@ import shlex
 from datetime import datetime
 from aiogram import Dispatcher, types
 from aiogram.types import Message
-from create_bot import bot, con, superuser,today
+from create_bot import bot, con, superuser        #,today
 from .user import rootpath
 from tgbot.keyboards.client_kb import kb_client   #, mas
 from tgbot.keyboards.inline import inline_kb1
@@ -251,7 +251,8 @@ async def help(message: types.Message):
         hlp = hlp + "\n/inns - 'список ORG'\n"
         hlp = hlp + "\n/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'"
 
-    await message.answer(hlp)
+    #await message.answer('<code>' + hlp + '</code>')
+    await message.answer( hlp)
 
 
 def register_admin(dp: Dispatcher):

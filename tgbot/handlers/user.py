@@ -172,7 +172,7 @@ async def echo_info(message: types.Message):
         sss = await readxls(fil, phoneNumber)
         await message.answer(sss)
     else:
-        await message.answer("Noma'lum komada berildi.")
+        await message.answer("Noma'lum komanda berildi.")
 
 
 def register_user(dp: Dispatcher):
