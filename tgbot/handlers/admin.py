@@ -233,24 +233,15 @@ async def copydoc(message: types.Message):
         fil = rootpath() + path_sep + 'files' + path_sep
         fil1 = rootpath()  + path_sep
 
-        text = message.text[5:]
-
-        dest = text.strip()  # путь к папке
         src = fil1 + file1
-
-        shutil.copy2(src, dest)
-        print(src + ' to ' + dest)
-
-        if not os.path.exists(dest):  # Если пути не существует создаем его
-            os.makedirs(dest)
+        doc = open(src, 'rb')
+        await message.reply_document(doc)
 
         for root,dirs,files in os.walk(fil):
             for filename in files:
                 src = fil + filename
-                dest = text.strip()  # путь к папке
-                shutil.copy2(src, dest)
-                print(src + ' to ' + dest)
-        await message.answer(dest)
+                doc = open(src,'rb')
+                await message.reply_document(doc)
 
 async def help(message: types.Message):
     #    print("Help для Админа")
@@ -262,7 +253,7 @@ async def help(message: types.Message):
         hlp = hlp + "\nSuperuser\n\n/sendinn INN # \nДобавить\nИзменит\nУдалить #=9"
         hlp = hlp + "\n/inns - 'список ORG'\n"
         hlp = hlp + "\n/addadmin - 'addaamin ID'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'"
-        hlp = hlp + "\n/copy dir -  ( copy c:/!!! )"
+        hlp = hlp + "\n/copy)"
     #await message.answer('<code>' + hlp + '</code>')
     await message.answer( hlp)
 
