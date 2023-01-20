@@ -11,8 +11,8 @@ class Database:
     def createTables(self):
         tables = [
             '''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER,innorg INTEGER,fio TEXT,prz INTEGER)''',
-            '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER)''',
-            '''CREATE TABLE IF NOT EXISTS admin  (admin_id INTEGER PRIMARY KEY NOT NULL)'''
+            '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER, nam TEXT)''',
+            '''CREATE TABLE IF NOT EXISTS admin  (admin_id INTEGER PRIMARY KEY NOT NULL,org INTEGER,fio Text)'''
         ]
         for tab in tables:
 #            print(tab)
@@ -54,10 +54,18 @@ class Database:
         with self.base:
             r = self.cur.execute('SELECT innorg,phone,fio,prz FROM client WHERE idp == ?', (idx,)).fetchone()
         return (r)
+    async def get_rek(self, idx):
+        with self.base:
+            r = self.cur.execute('SELECT org,fio,(select nam FROM org WHERE (admin.org=org.inn)) \
+            FROM admin WHERE admin_id == ?', (idx,)).fetchone()
+        return (r)
 
     async def get_users(self):
         with self.base:
             return self.cur.execute('SELECT idp,fio,prz,innorg  FROM   client').fetchall()
+    async def get_users_org(self,inn):
+        with self.base:
+            return self.cur.execute('SELECT idp,fio,prz  FROM client WHERE innorg==?',(inn,)).fetchall()
 
     async def set_active(self, prz, user_id):
         with self.base:
@@ -78,9 +86,15 @@ class Database:
         with self.base:
             r = self.cur.execute('SELECT admin_id FROM admin WHERE admin_id == ?', (id,)).fetchmany(1)
             return bool(len(r))
-    async def admin_add(self, id):
-        with self.base:
-            return self.cur.execute('INSERT INTO admin VALUES (?)', (id,))
+    async def admin_add(self, id,innorg,fio):
+        r = self.cur.execute('SELECT admin_id FROM admin WHERE admin_id == ?', (id,)).fetchone()
+        if r==None:
+            with self.base:
+                self.cur.execute('INSERT INTO admin VALUES (?,?,?)', (id,innorg,fio,))
+        else:
+            with self.base:
+                self.cur.execute('UPDATE admin SET org==?,fio==? WHERE admin_id ==?', (innorg,fio,id,))
+        return r
     async def admin_del(self, id):
         with self.base:
             return self.cur.execute('DELETE FROM admin WHERE admin_id==?', (id,))
@@ -95,28 +109,38 @@ class Database:
 
     async def admins_info(self):
         with self.base:
-            return self.cur.execute('select admin_id,\
-                                            (select client.innorg from client where client.idp=admin.admin_id),\
-                                            (select client.phone from client where client.idp=admin.admin_id),\
-                                            (select client.fio from client where client.idp=admin.admin_id) \
-                                     from admin').fetchall()
+            return self.cur.execute('select admin_id,fio,org,(select nam FROM org WHERE (admin.org=org.inn))\
+            from admin').fetchall()
     async def inn_info(self):
         with self.base:
-            return self.cur.execute('select inn,prz from org').fetchall()
+            return self.cur.execute('select inn,prz,nam from org').fetchall()
+    async def inn_rek(self,inn):
+        with self.base:
+            return self.cur.execute('select nam from org WHERE inn == ?', (inn,)).fetchone()
+    async def droporg(self):
+        with self.base:
+            self.cur.execute('DROP TABLE org')
+            s = '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER, nam TEXT)'''
+            self.createTable(s)
+    async def dropadm(self):
+        with self.base:
+            self.cur.execute('DROP TABLE admin')
+            s ='''CREATE TABLE IF NOT EXISTS admin  (admin_id INTEGER PRIMARY KEY NOT NULL,org INTEGER,fio Text)'''
+            self.createTable(s)
 
-    async def inn_add(self, inn, prz):
+    async def inn_add(self, inn, prz,nam):
         with self.base:
             r = self.cur.execute('SELECT inn FROM org WHERE inn == ?', (inn,)).fetchmany(1)
             if bool(len(r)):
                 if prz == 9:
-                    print("Delete INN " + str(inn))
+                    print("Delete ",inn)
                     self.cur.execute('DELETE FROM org WHERE inn==?', (inn,))
                 else:
-                    print("Update INN ")
-                    self.cur.execute('UPDATE org SET  prz==? WHERE inn==?', (prz, inn,))
+                    self.cur.execute('UPDATE org SET  prz==?, nam==? WHERE inn==?', (prz,nam,inn,))
+                    print("Update", inn,prz,nam)
             else:
-                print("Insert INN ")
-                self.cur.execute('INSERT INTO org VALUES (?,?)', (inn, prz,))
+                self.cur.execute('INSERT INTO org VALUES (?,?,?)', (inn, prz,nam,))
+                print("Insert",inn,prz,nam)
 
     async def reg_id(self, user_id, inn, tel):
         with self.base:
@@ -129,29 +153,30 @@ class Database:
                 print('Insert')
                 return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (user_id, tel, inn, '', 1,))
 
+    async def get_innorg(self, id):
+        with self.base:
+            return (self.cur.execute('SELECT org,fio from admin  WHERE admin_id == ?', (id,)).fetchone())
     async def poisk_id(self, user_id, fileName):
         e = True
         try:
             innFile = int(fileName[0:9])
-            r = await self.get_inn(user_id)
-            innClient = r[0]
 
-            x = await self.inn_exists2(innClient)
+            r = await self.get_innorg(user_id)
+            print(r)
 
-            if x:
+            if r:
+                innClient = r[0]
                 e = (innFile == innClient)
 
                 if e:
-                    print(fileName, user_id, "Может сохранить...", "innFile", innFile, "==", innClient, "innClient")
+                    print(fileName, user_id, "Может сохранить...", "innFile", innFile, "==", innClient, "innVadmin")
                 else:
-                    print(fileName, user_id, "Не может сохранить...", "innFile", innFile, "!=", innClient, "innClient")
+                    print(fileName, user_id, "Не может сохранить...", "innFile", innFile, "!=", innClient, "innVadmin")
             else:
-                print(innClient, "нет в таблице ORG")
+                print(innClient, "нет в таблице ADMIN")
                 e = False
         except:
             e = False
-            print(fileName, 'Не может быть сохранен ...', user_id)
-
         return e
 
 

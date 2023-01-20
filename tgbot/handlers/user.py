@@ -77,7 +77,7 @@ async def load_inn(message: types.Message, state=FSMContakt):
     else:
         # Если в таблице ORG не будет INN
         # не будем регистрироват
-        print(data['innorg'],"Нет такой INN")
+        print(date_time,data['innorg'],"Нет такой INN")
         await message.answer("Bu INN ro'yhatda mavjud emas "+str(data['innorg']))
     # Это до state.finish()
 
@@ -101,18 +101,20 @@ async def user_info(message: Message):
     await message.answer("Ma'lumot olish\n" + str(inn[0]), reply_markup=kb_client)
 
 # @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
+'''
 async def scan_doc(message: types.document):
     print("Mumkin emas, admin ro'yhatida mavjud emassiz.")
     await message.answer("Mumkin emas, admin ro'yhatida mavjud emassiz.")
-
+'''
 #@dp.message_handler(commands=["help"])
 async def ok(message: types.Message):
-    print("Отправка админу сообщение о себе id_user="+str(message.from_user.id))
+    now = datetime.now()  # current date and time
+    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
+    print(date_time,"Отправка админу сообщение о себе id_user="+str(message.from_user.id))
     if (message.chat.type == 'private'):
         await bot.send_message(139204666,"User_id "+ str(message.from_user.id))
 
 async def help(message: types.Message):
-    print("Help для User")
     await message.answer("/start - Registratsiya\n"
                          "/info - Ma'lumot olish\n"
                          "/ok - Status")
@@ -133,56 +135,56 @@ async def echo_info(message: types.Message):
 
     path_sep = os.path.sep
     fil = rootpath() +  path_sep + 'files' + path_sep + str(inn) + '_' + message.text + '.xls'
-    print(fil)
+    print(date_time,fil)
 
     if message.text == mas[0]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[1]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[2]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[3]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[4]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[5]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[6]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[7]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[8]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[9]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[10]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     elif message.text == mas[11]:
-        sss = await readxls(fil, phoneNumber)
+        sss = await readxls(fil, phoneNumber,inn)
         await message.answer(sss)
     else:
         await message.answer("Noma'lum komanda berildi.")
 
 
 def register_user(dp: Dispatcher):
-    dp.register_message_handler(com_start, commands=["start"], state="*")
+    dp.register_message_handler(com_start, commands=["start"])
     dp.register_message_handler(send_phone, content_types=['contact'], state=FSMContakt.phone)
     dp.register_message_handler(load_inn, state=FSMContakt.innorg)
     dp.register_message_handler(cancel_hendler, state="*", commands=["otmena"])
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
     dp.register_message_handler(user_info, commands=["info"])
-    dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT])
+#    dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT])
     dp.register_message_handler(ok, commands = ["ok"])
     dp.register_message_handler(help, commands = ["help"])
     dp.register_message_handler(echo_info)

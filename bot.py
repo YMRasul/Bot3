@@ -21,18 +21,15 @@ def register_all_handlers(dp):
 
 
 async def on_startup(_):
-#    await bot.set_webhook('https://63-250-60-45.cloud-xip.com/Bot3')
-#    await bot.set_webhook('https://63.250.60.45:8443/Bot3')
-#    await bot.set_webhook(WEBHOOK_URL)
-    con.message("Соединение с базой данных ...")
-    print('Bot вышел в online ...')
-
+#    con.message("Соединение с базой данных ...")
+    logger.info(">>>>>>> Запускаем Бот...")
+    logger.info(">>>>>>> Соединение с базой данных ...")
+    logger.info('>>>>>>> Bot вышел в online ...')
 
 async def on_shutdown(_):
-#    await bot.delete_webhook()
-    print('Закрытие соединение ...')
+    logger.info('>>>>>>> Закрытие соединение ...')
     con.close()  # stop
-    print('Bot закончил работу ...')
+    logger.info('>>>>>>> Заканчиваем работу Бота...')
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +38,7 @@ logging.basicConfig(
     level=logging.INFO,
     format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
 )
-logger.info("Start Bot ...  (запуск)")
+
 
 register_all_filters(dp)  # Если Admin, то этот будет работат
 register_all_handlers(dp)
@@ -49,15 +46,3 @@ register_all_handlers(dp)
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
 
-'''
-#    Запускается  но нереагирует
-    executor.start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
-        host=WEBAPP_HOST,
-        port=WEBAPP_PORT,
-        )
-'''

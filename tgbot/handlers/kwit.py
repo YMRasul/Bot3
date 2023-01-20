@@ -1,7 +1,8 @@
-import xlrd, os
+import xlrd
+from create_bot import con
+from datetime import datetime
 
-
-async def readxls(filexls, nomertel):
+async def readxls(filexls, nomertel,inn):
     ''' читаем .xls файла с помощью xlrd для чтение .xlsx  openpyxl.
         находим данные из файла по номеру телефона
      '''
@@ -9,6 +10,15 @@ async def readxls(filexls, nomertel):
 #    sss = '<strong>'
     sss = ''
 #    < b > bold < / b >
+    now = datetime.now()  # current date and time
+    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
+
+    rek = await con.inn_rek(inn)
+    if not None:
+        #sss = '<b>' + str(inn)+':' + rek[0]  +  '</b >' + '\n'
+        sss = str(inn)+':' + rek[0]
+        print(date_time,sss)
+        sss = sss + '\n'
     try:
         book = xlrd.open_workbook(filexls)
         sheet = book.sheet_by_index(0)
@@ -22,7 +32,7 @@ async def readxls(filexls, nomertel):
         for m in range(row):
             tel = ''.join(str(sheet.cell_value(m, 0)).strip().split(' '))
             if (nomertel==tel  or nomertel1==tel):
-                print(nomertel,sheet.cell_value(m, 0))
+                print(date_time,nomertel,sheet.cell_value(m, 0))
                 nomercol = m
                 break
 
@@ -52,12 +62,12 @@ async def readxls(filexls, nomertel):
                     sss = mess +'\n\n' + sss
         else:
             sss = ''
-            print(nomertel + ' nomeri ' + filexls + ' da faylida topilmadi')
+            print(date_time,nomertel + ' nomeri ' + filexls + ' da faylida topilmadi')
 
     except FileNotFoundError as err:
         sss = "Bu oy ma'lumotlari serverga joylashtirilmagan !"
-        print(f"{err}")
-        print(filexls, "Файл не найден или он плохой")
+        print(date_time,f"{err}")
+        print(date_time,filexls, "Файл не найден или он плохой")
 
     if sss == '':
         sss = "Ma'lumot topilmadi..." + "\n"
