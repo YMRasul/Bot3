@@ -1,0 +1,15 @@
+[Unit]
+Description=Oylik
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/root/bot3/env/bin/python bot.py
+ExecReload=/root/bot3/env/bin/python bot.py
+WorkingDirectory=/root/bot3/
+KillMode=process
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

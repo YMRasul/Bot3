@@ -1,6 +1,6 @@
 import logging
 
-from create_bot import dp, con
+from create_bot import dp, con,logger
 from aiogram.utils import executor
 
 #from aiogram.utils.executor import start_webhook
@@ -22,22 +22,26 @@ def register_all_handlers(dp):
 
 async def on_startup(_):
 #    con.message("Соединение с базой данных ...")
-    logger.info(">>>>>>> Запускаем Бот...")
-    logger.info(">>>>>>> Соединение с базой данных ...")
-    logger.info('>>>>>>> Bot вышел в online ...')
+    logger.info(">>>>>>> Start Bot oylik")
+    logger.info(">>>>>>> Connecting dbase_sqlite.db")
+    logger.info('>>>>>>> Bot oylik in online')
 
 async def on_shutdown(_):
-    logger.info('>>>>>>> Закрытие соединение ...')
+    logger.info('>>>>>>> Close dbase_sqlite.db')
     con.close()  # stop
-    logger.info('>>>>>>> Заканчиваем работу Бота...')
+    logger.info('>>>>>>> Stop Bot oylik')
 
-
+'''
 logger = logging.getLogger(__name__)
-
 logging.basicConfig(
     level=logging.INFO,
     format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
 )
+'''
+#logging.basicConfig(
+#    level=logging.DEBUG,
+#    format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s'
+#)
 
 
 register_all_filters(dp)  # Если Admin, то этот будет работат

@@ -133,50 +133,50 @@ class Database:
             r = self.cur.execute('SELECT inn FROM org WHERE inn == ?', (inn,)).fetchmany(1)
             if bool(len(r)):
                 if prz == 9:
-                    print("Delete ",inn)
+                    #print("Delete ",inn)
                     self.cur.execute('DELETE FROM org WHERE inn==?', (inn,))
                 else:
                     self.cur.execute('UPDATE org SET  prz==?, nam==? WHERE inn==?', (prz,nam,inn,))
-                    print("Update", inn,prz,nam)
+                    #print("Update", inn,prz,nam)
             else:
                 self.cur.execute('INSERT INTO org VALUES (?,?,?)', (inn, prz,nam,))
-                print("Insert",inn,prz,nam)
+                #print("Insert",inn,prz,nam)
 
     async def reg_id(self, user_id, inn, tel):
         with self.base:
             r = self.cur.execute('SELECT idp FROM client WHERE idp == ?', (user_id,)).fetchmany(1)
-            print(r)
+            #print(r)
             if bool(len(r)):
-                print('Update')
+                #print('Update')
                 self.cur.execute('UPDATE client SET  phone==?,innorg==?,prz==? WHERE idp ==?', (tel, inn, 1, user_id,))
             else:
-                print('Insert')
+                #print('Insert')
                 return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (user_id, tel, inn, '', 1,))
 
     async def get_innorg(self, id):
         with self.base:
             return (self.cur.execute('SELECT org,fio from admin  WHERE admin_id == ?', (id,)).fetchone())
+
     async def poisk_id(self, user_id, fileName):
         e = True
-        try:
-            innFile = int(fileName[0:9])
-
-            r = await self.get_innorg(user_id)
-            print(r)
-
-            if r:
-                innClient = r[0]
+        r = await self.get_innorg(user_id)
+        if r:
+            innClient = r[0]
+            try:
+                innFile = int(fileName[0:9])
                 e = (innFile == innClient)
-
+                ''' 
                 if e:
                     print(fileName, user_id, "Может сохранить...", "innFile", innFile, "==", innClient, "innVadmin")
                 else:
                     print(fileName, user_id, "Не может сохранить...", "innFile", innFile, "!=", innClient, "innVadmin")
-            else:
-                print(innClient, "нет в таблице ADMIN")
+                '''
+            except:
+                #print(fileName, "Не может быт сохранен..")
                 e = False
-        except:
+        else:
             e = False
+            #print(user_id, "нет в таблице ADMIN")
         return e
 
 

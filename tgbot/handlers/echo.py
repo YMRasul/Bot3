@@ -1,7 +1,5 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.utils.markdown import hcode
-
 
 async def bot_echo_all(message: types.Message, state: FSMContext):
     await message.answer("Noma'lum komanda berildi...")

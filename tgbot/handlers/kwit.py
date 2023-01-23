@@ -1,5 +1,5 @@
 import xlrd
-from create_bot import con
+from create_bot import con,logger
 from datetime import datetime
 
 async def readxls(filexls, nomertel,inn):
@@ -17,7 +17,8 @@ async def readxls(filexls, nomertel,inn):
     if not None:
         #sss = '<b>' + str(inn)+':' + rek[0]  +  '</b >' + '\n'
         sss = str(inn)+':' + rek[0]
-        print(date_time,sss)
+        logger.info(f"{sss}")
+        #print(date_time,sss)
         sss = sss + '\n'
     try:
         book = xlrd.open_workbook(filexls)
@@ -32,7 +33,8 @@ async def readxls(filexls, nomertel,inn):
         for m in range(row):
             tel = ''.join(str(sheet.cell_value(m, 0)).strip().split(' '))
             if (nomertel==tel  or nomertel1==tel):
-                print(date_time,nomertel,sheet.cell_value(m, 0))
+                logger.info(f"{nomertel} {sheet.cell_value(m, 0)}")
+                #print(date_time,nomertel,sheet.cell_value(m, 0))
                 nomercol = m
                 break
 
@@ -62,12 +64,17 @@ async def readxls(filexls, nomertel,inn):
                     sss = mess +'\n\n' + sss
         else:
             sss = ''
-            print(date_time,nomertel + ' nomeri ' + filexls + ' da faylida topilmadi')
+            logger.info(f"{nomertel} nomeri {filexls} da faylida topilmadi")
+            #print(date_time,nomertel + ' nomeri ' + filexls + ' da faylida topilmadi')
 
     except FileNotFoundError as err:
         sss = "Bu oy ma'lumotlari serverga joylashtirilmagan !"
-        print(date_time,f"{err}")
-        print(date_time,filexls, "Файл не найден или он плохой")
+
+        logger.info(f"{err}")
+        logger.info(f"{filexls} fayli topilmadi")
+
+        #print(date_time,f"{err}")
+        #print(date_time,filexls, "Файл не найден или он плохой")
 
     if sss == '':
         sss = "Ma'lumot topilmadi..." + "\n"

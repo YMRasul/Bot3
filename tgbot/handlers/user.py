@@ -7,7 +7,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 
-from create_bot import con,bot
+from create_bot import con,bot,logger
 
 from tgbot.keyboards.client_kb import kb_client, mas
 from .kwit import readxls
@@ -77,7 +77,8 @@ async def load_inn(message: types.Message, state=FSMContakt):
     else:
         # Если в таблице ORG не будет INN
         # не будем регистрироват
-        print(date_time,data['innorg'],"Нет такой INN")
+        #print(date_time,data['innorg'],"Нет такой INN")
+        logger.info(f"{data['innorg']} Нет такой INN")
         await message.answer("Bu INN ro'yhatda mavjud emas "+str(data['innorg']))
     # Это до state.finish()
 
@@ -110,7 +111,9 @@ async def scan_doc(message: types.document):
 async def ok(message: types.Message):
     now = datetime.now()  # current date and time
     date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
-    print(date_time,"Отправка админу сообщение о себе id_user="+str(message.from_user.id))
+    #print(date_time,"Отправка админу сообщение о себе id_user="+str(message.from_user.id))
+    logger.info(f"Отправка админу сообщение о себе id_user={message.from_user.id}")
+
     if (message.chat.type == 'private'):
         await bot.send_message(139204666,"User_id "+ str(message.from_user.id))
 
@@ -131,11 +134,13 @@ async def echo_info(message: types.Message):
     now = datetime.now()  # current date and time
     date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
 
-    print(date_time, idd, phoneNumber, 'Bazadan', x)
+    #print(date_time, idd, phoneNumber, 'Bazadan', x)
+    logger.info(f"{idd} {phoneNumber} 'Bazadan' {x}")
 
     path_sep = os.path.sep
     fil = rootpath() +  path_sep + 'files' + path_sep + str(inn) + '_' + message.text + '.xls'
-    print(date_time,fil)
+    logger.info(f"{fil}")
+    #print(date_time,fil)
 
     if message.text == mas[0]:
         sss = await readxls(fil, phoneNumber,inn)
