@@ -91,7 +91,7 @@ async def adm_info(message: Message):
                 if (org is None):
                     org = 'not exist in ORG'
                 logger.info(f"{id} {fio} {m[2]} {org}")
-                text = text + id + ' ' + fio  + '\n' + str(m[2]).rjust(12)+' ' + org+ "\n\n"
+                text = text + id + ' ' + fio + '\n' + str(m[2]).rjust(12) + ' ' + org +"\n\n"
             await message.answer('<code>' + text+ '</code>')
         else:
             await message.answer("Admin lar ro'xati bo'sh ")
@@ -166,7 +166,16 @@ async def info_inn(message: Message):
         inns = await con.inn_info()
         if inns:
             for inn in inns:
-                await message.answer(str(inn[1]) + ' ' + str(inn[0]) + ' ' + inn[2])
+                r = await con.innUser(inn[0],1)
+                act = str(r[0]).ljust(5)
+
+                z = await con.innUser(inn[0],0)
+                dea = str(z[0]).ljust(5)
+
+                tot = str(r[0]+z[0]).ljust(5)
+
+                s = f"{inn[0]} {inn[1]} {inn[2]}\nTotal: {tot}\nActiv: {act}\nNotac: {dea}"
+                await message.answer('<code>' + s+ '</code>')
                 #print(date_time,str(inn[1]) + ' ' + str(inn[0]) + ' ' + inn[2])
                 logger.info(f"{inn[1]} {inn[0]} {inn[2]}")
         else:
@@ -240,6 +249,8 @@ async def send_all(message: Message):
                         await con.set_active(0, row[0])
                         #print(date_time,"Юзер " + str(row[0]) + " " + row[1] + " не активен")
                         logger.info(f"User {row[0]} {row[1]} not active")
+                await message.answer('Всем успешно отправлено.')
+                logger.info(f"All sended ")
 
 
 # @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
@@ -302,6 +313,19 @@ async def copydoc(message: types.Message):
                 i = i + 1
                 logger.info(f"{i} getted file {src}")
                 #print(date_time,i, 'Получен файл', src)
+
+async def copylogfile(message: types.Message):
+    file1 = 'oylikbot.log'
+    if message.from_user.id == superuser:  # superUser
+        path_sep = os.path.sep
+        fil1 = rootpath() + path_sep
+        src = fil1 + file1
+        doc = open(src, 'rb')
+        await message.reply_document(doc)
+        #        print(date_time,i, 'Получен файл', src)
+        logger.info(f"getted file {src}")
+
+
 async def drop_org(message: types.Message):
     if message.from_user.id == superuser:  # superUser
         #now = datetime.now()  # current date and time
@@ -327,12 +351,13 @@ async def help(message: types.Message):
     hlp = "/start - Fayl jo'natish\n" \
           "/sendall - Hammaga habar yuborish\n"
     hlp = hlp + "/reg INN Tel -registratsiya\n     INN- 9 hona raqam, tel- 998 bilan\n\n/info - ma'lumot olish\n"
+    hlp = hlp + "/rek  - rekvizitlarim\n"
 
     if message.from_user.id == superuser:  # superUser
         hlp = hlp + "\nSuperuser\n\n/sendinn INN # namorg \n #\nДобавить\nИзменит\nУдалить #=9"
         hlp = hlp + "\n/inns - 'список ORG'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'"
-        hlp = hlp + "\n/copy"
+        hlp = hlp + "\n/copy\n/copylog"
         hlp = hlp + "\n/droporg - сброс ORG\n/dropadm - сброс ADMIN"
     # await message.answer('<code>' + hlp + '</code>')
     await message.answer(hlp)
@@ -351,6 +376,7 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT], is_admin=True)
     dp.register_message_handler(copydoc, commands=["copy"], state="*", is_admin=True)
+    dp.register_message_handler(copylogfile, commands=["copylog"], state="*", is_admin=True)
     dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
     dp.register_message_handler(drop_adm, commands=["dropadm"], state="*", is_admin=True)
     dp.register_message_handler(help, commands=["help"], state="*", is_admin=True)

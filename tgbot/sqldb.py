@@ -52,8 +52,14 @@ class Database:
 
     async def get_inn(self, idx):
         with self.base:
-            r = self.cur.execute('SELECT innorg,phone,fio,prz FROM client WHERE idp == ?', (idx,)).fetchone()
+            r = self.cur.execute('SELECT innorg,phone,fio,prz,\
+             (select nam from org where (client.innorg=org.inn) ) FROM client WHERE idp == ?', (idx,)).fetchone()
         return (r)
+
+    async def innUser(self,inn,prz):
+        with self.base:
+            r = self.cur.execute('select count(*) from client where (innorg==? and prz==?)',(inn,prz,)).fetchone()
+            return (r)
     async def get_rek(self, idx):
         with self.base:
             r = self.cur.execute('SELECT org,fio,(select nam FROM org WHERE (admin.org=org.inn)) \

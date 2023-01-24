@@ -8,10 +8,15 @@ from datetime import date
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=logging.INFO,
-    format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
+    level=logging.INFO,filename='oylikbot.log',
+    format=u'%(levelname)-8s [%(asctime)s] %(message)s'
 )
-
+'''
+logging.basicConfig(
+    level=logging.INFO,filename='oylikbot.log',
+    format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s'
+)
+'''
 today = date.today()
 
 config = load_config(".env")

@@ -22,6 +22,7 @@ def register_all_handlers(dp):
 
 async def on_startup(_):
 #    con.message("Соединение с базой данных ...")
+    print(">>>>>>> Start Bot oylik")
     logger.info(">>>>>>> Start Bot oylik")
     logger.info(">>>>>>> Connecting dbase_sqlite.db")
     logger.info('>>>>>>> Bot oylik in online')
@@ -30,19 +31,7 @@ async def on_shutdown(_):
     logger.info('>>>>>>> Close dbase_sqlite.db')
     con.close()  # stop
     logger.info('>>>>>>> Stop Bot oylik')
-
-'''
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
-)
-'''
-#logging.basicConfig(
-#    level=logging.DEBUG,
-#    format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s'
-#)
-
+    print('>>>>>>> Stop Bot oylik')
 
 register_all_filters(dp)  # Если Admin, то этот будет работат
 register_all_handlers(dp)

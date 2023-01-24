@@ -107,12 +107,17 @@ async def scan_doc(message: types.document):
     print("Mumkin emas, admin ro'yhatida mavjud emassiz.")
     await message.answer("Mumkin emas, admin ro'yhatida mavjud emassiz.")
 '''
+async def rek(message: types.Message):
+    logger.info(f"{message.from_user.id} rekvizitlarim")
+    z = await con.get_inn(message.from_user.id)
+    s = f"    id: {message.from_user.id}\n   Fio: {z[2]}\n   Tel: {z[1]}\nInnOrg: {z[0]}\nNamOrg: {z[4]}"
+
+    await message.answer('<code>'+ s +  '</code>')
+
 #@dp.message_handler(commands=["help"])
 async def ok(message: types.Message):
     now = datetime.now()  # current date and time
-    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
-    #print(date_time,"Отправка админу сообщение о себе id_user="+str(message.from_user.id))
-    logger.info(f"Отправка админу сообщение о себе id_user={message.from_user.id}")
+    logger.info(f"Admin uchun id_user={message.from_user.id}")
 
     if (message.chat.type == 'private'):
         await bot.send_message(139204666,"User_id "+ str(message.from_user.id))
@@ -120,6 +125,7 @@ async def ok(message: types.Message):
 async def help(message: types.Message):
     await message.answer("/start - Registratsiya\n"
                          "/info - Ma'lumot olish\n"
+                         "/rek  - rekvizitlarim\n"
                          "/ok - Status")
 
 async def echo_info(message: types.Message):
@@ -189,7 +195,7 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(cancel_hendler, state="*", commands=["otmena"])
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
     dp.register_message_handler(user_info, commands=["info"])
-#    dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT])
     dp.register_message_handler(ok, commands = ["ok"])
+    dp.register_message_handler(rek, commands = ["rek"])
     dp.register_message_handler(help, commands = ["help"])
     dp.register_message_handler(echo_info)
