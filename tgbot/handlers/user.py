@@ -7,7 +7,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 
-from create_bot import con,bot,logger
+from create_bot import con, bot, logger
 
 from tgbot.keyboards.client_kb import kb_client, mas
 from .kwit import readxls
@@ -77,12 +77,13 @@ async def load_inn(message: types.Message, state=FSMContakt):
     else:
         # Если в таблице ORG не будет INN
         # не будем регистрироват
-        #print(date_time,data['innorg'],"Нет такой INN")
+        # print(date_time,data['innorg'],"Нет такой INN")
         logger.info(f"{data['innorg']} Нет такой INN")
-        await message.answer("Bu INN ro'yhatda mavjud emas "+str(data['innorg']))
+        await message.answer("Bu INN ro'yhatda mavjud emas " + str(data['innorg']))
     # Это до state.finish()
 
     await state.finish()
+
 
 #    print(tuple(data.values()))  # Шу ерда хам ишлаяпти   state.finish() дан олдин булишши керак эди
 
@@ -99,92 +100,89 @@ async def cancel_hendler(message: types.Message, state=FSMContakt):
 # ответ на команду /info
 async def user_info(message: Message):
     inn = await con.get_inn(message.chat.id)
+    logger.info(f"\n{message.from_user.id} /info")
     await message.answer("Ma'lumot olish\n" + str(inn[0]), reply_markup=kb_client)
 
-# @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
-'''
-async def scan_doc(message: types.document):
-    print("Mumkin emas, admin ro'yhatida mavjud emassiz.")
-    await message.answer("Mumkin emas, admin ro'yhatida mavjud emassiz.")
-'''
 async def rek(message: types.Message):
-    logger.info(f"{message.from_user.id} rekvizitlarim")
     z = await con.get_inn(message.from_user.id)
     s = f"    id: {message.from_user.id}\n   Fio: {z[2]}\n   Tel: {z[1]}\nInnOrg: {z[0]}\nNamOrg: {z[4]}"
+    logger.info(f"\n{message.from_user.id} /rek rekvizitlarim")
+    await message.answer('<code>' + s + '</code>')
 
-    await message.answer('<code>'+ s +  '</code>')
 
-#@dp.message_handler(commands=["help"])
+# @dp.message_handler(commands=["help"])
 async def ok(message: types.Message):
     now = datetime.now()  # current date and time
+    logger.info(f"\n{message.from_user.id} /ok")
     logger.info(f"Admin uchun id_user={message.from_user.id}")
 
     if (message.chat.type == 'private'):
-        await bot.send_message(139204666,"User_id "+ str(message.from_user.id))
+        await bot.send_message(139204666, "User_id " + str(message.from_user.id))
+
 
 async def help(message: types.Message):
+    logger.info(f"\n{message.from_user.id} /help")
     await message.answer("/start - Registratsiya\n"
                          "/info - Ma'lumot olish\n"
                          "/rek  - rekvizitlarim\n"
                          "/ok - Status")
 
+
 async def echo_info(message: types.Message):
-    idd = message.chat.id
-    x = await con.get_inn(idd)
-    inn = 0
-    phoneNumber = ''
-    if x != None:
-        inn = x[0]
-        phoneNumber = '+' + str(x[1])
+    if (len(message.text) > 4 and  (message.text[4] == '_')):
+        idd = message.from_user.id
+        x = await con.get_inn(idd)
+        inn = 0
+        phoneNumber = ''
+        if x != None:
+            inn = x[0]
+            phoneNumber = '+' + str(x[1])
+        logger.info(f"\n{message.from_user.id} /khopka")
+        logger.info(f"{message.from_user.id} {phoneNumber} 'Bazadan' {x}")
 
-    now = datetime.now()  # current date and time
-    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
-
-    #print(date_time, idd, phoneNumber, 'Bazadan', x)
-    logger.info(f"{idd} {phoneNumber} 'Bazadan' {x}")
-
-    path_sep = os.path.sep
-    fil = rootpath() +  path_sep + 'files' + path_sep + str(inn) + '_' + message.text + '.xls'
-    logger.info(f"{fil}")
-    #print(date_time,fil)
-
-    if message.text == mas[0]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[1]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[2]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[3]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[4]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[5]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[6]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[7]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[8]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[9]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[10]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
-    elif message.text == mas[11]:
-        sss = await readxls(fil, phoneNumber,inn)
-        await message.answer(sss)
+        path_sep = os.path.sep
+        fil = rootpath() + path_sep + 'files' + path_sep + str(inn) + '_' + message.text + '.xls'
+        logger.info(f"{fil}")
+        if message.text == mas[0]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[1]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[2]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[3]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[4]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[5]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[6]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[7]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[8]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[9]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[10]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        elif message.text == mas[11]:
+            sss = await readxls(fil, phoneNumber, inn)
+            await message.answer(sss)
+        else:
+            await message.answer("Noma'lum komanda berildi.")
     else:
+        logger.info(f"\n{message.from_user.id}  Noma'lum komanda berildi")
         await message.answer("Noma'lum komanda berildi.")
 
 
@@ -195,7 +193,7 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(cancel_hendler, state="*", commands=["otmena"])
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
     dp.register_message_handler(user_info, commands=["info"])
-    dp.register_message_handler(ok, commands = ["ok"])
-    dp.register_message_handler(rek, commands = ["rek"])
-    dp.register_message_handler(help, commands = ["help"])
+    dp.register_message_handler(ok, commands=["ok"])
+    dp.register_message_handler(rek, commands=["rek"])
+    dp.register_message_handler(help, commands=["help"])
     dp.register_message_handler(echo_info)

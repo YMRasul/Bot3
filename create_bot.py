@@ -8,7 +8,7 @@ from datetime import date
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=logging.INFO,filename='oylikbot.log',
+    level=logging.INFO,
     format=u'%(levelname)-8s [%(asctime)s] %(message)s'
 )
 '''
