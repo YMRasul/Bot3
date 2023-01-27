@@ -39,14 +39,14 @@ class Database:
     async def add_user(self, state, time):
         async with state.proxy() as data:
             t = tuple(data.values())
-        print(time, "Insert", t)
+        #print(time, "Insert", t)
         with self.base:
             return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (t[0], t[1], t[3], t[2], 1,))
 
     async def up_user(self, state, time):
         async with state.proxy() as data:
             t = tuple(data.values())
-        print(time, "Update", t)
+        #print(time, "Update", t)
         with self.base:
             self.cur.execute('UPDATE client SET  phone==?,innorg==?,fio==? WHERE idp ==?', (t[1], t[3], t[2], t[0],))
 
@@ -148,16 +148,21 @@ class Database:
                 self.cur.execute('INSERT INTO org VALUES (?,?,?)', (inn, prz,nam,))
                 #print("Insert",inn,prz,nam)
 
-    async def reg_id(self, user_id, inn, tel):
+    async def reg_id(self, id, inn, tel, fio):
         with self.base:
-            r = self.cur.execute('SELECT idp FROM client WHERE idp == ?', (user_id,)).fetchmany(1)
+            r = self.cur.execute('SELECT idp FROM client WHERE idp == ?', (id,)).fetchone()
             #print(r)
-            if bool(len(r)):
+            if (r):
                 #print('Update')
-                self.cur.execute('UPDATE client SET  phone==?,innorg==?,prz==? WHERE idp ==?', (tel, inn, 1, user_id,))
+                self.cur.execute('UPDATE client SET  phone==?,innorg==?,fio==? WHERE idp ==?', (tel, inn,fio, id,))
             else:
                 #print('Insert')
-                return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (user_id, tel, inn, '', 1,))
+                return self.cur.execute('INSERT INTO client VALUES (?,?,?,?,?)', (id, tel, inn, fio, 0,))
+
+    async def clients(self):
+        with self.base:
+            return self.cur.execute('select prz,innorg,idp,phone,fio from client order by innorg,idp').fetchall()
+
 
     async def get_innorg(self, id):
         with self.base:

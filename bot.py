@@ -1,9 +1,5 @@
-import logging
-
 from create_bot import dp, con,logger
 from aiogram.utils import executor
-
-#from aiogram.utils.executor import start_webhook
 
 from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin

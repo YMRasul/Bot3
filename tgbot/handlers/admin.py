@@ -1,27 +1,13 @@
-#import shlex
 from datetime import datetime
 from aiogram import Dispatcher, types
 from aiogram.types import Message
 from create_bot import bot, con, superuser,logger  # ,today
 from .user import rootpath
-#from tgbot.keyboards.client_kb import kb_client  # , mas
-#from tgbot.keyboards.inline import inline_kb1
-#from tgbot.config import Config
 import os
-
-# @dp.message_handler(commands=["start"], state="*", is_admin=True)
-'''
-async def admin_start(message: Message):
-    await message.answer(
-        "Скрепки ни босинг !\n Fayl   'NNNNNNNNN_gggg_mm.xls'  ko'rinishida bo'lishi kerak\n Misol 200918719_2022_11.xls")
-'''
-
 
 async def adm_reg(message: Message):
     text = message.text[10:].strip()
     ms = [i.strip() for i in text.split(',')]
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
 
     if message.from_user.id == superuser:
         try:
@@ -101,23 +87,42 @@ async def adm_info(message: Message):
         await message.answer("Это команда SuperUserа")
 
 async def user_reg(message: Message):
+    # TODO user_reg /reg INN,ID,TEl,FIO
     user_id = message.from_user.id
-    text = message.text[5:]
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
-    try:
-        #print(date_time,text[0:9], text[10:], "-----> Регистрация по команде /reg 123456789 998937850078")
-        logger.info(f"\n{message.from_user.id}: {text[0:9]} {text[10:]} -----> /reg 123456789 998937850078 komandasi")
-        inn = int(text[0:9])
-        tel = int(text[10:])
-        if await con.inn_exists2(inn):
-            await  con.reg_id(user_id, inn, tel)
-            await message.answer("Registrasiya qilindingiz ..." + str(user_id))
-        else:
-            await message.answer(
-                "Registrasiya ketmadi\nQaytadan registrasiya qiling !\n " + str(inn) + " ORG da mavjud emas")
-    except:
-        await message.answer("Registrasiya ketmadi\nQaytadan registrasiya qiling ! " + str(user_id))
+    text = message.text[5:].strip()
+    ms = [i.strip() for i in text.split(',')]
+    #print(ms)
+    if message.from_user.id == superuser:  # superUser
+        try:
+            inn = int(ms[0])
+            id  = int(ms[1])
+            tel = int(ms[2])
+            fio = ms[3]
+            #print(f"{inn} {id} {tel} {fio}")
+            logger.info(f"\nSuperUser /reg : {inn} {id} {tel} {fio}")
+            if await con.inn_exists2(inn):
+                await con.reg_id(id, inn, tel,fio)
+                await message.answer(f"SuperUser registrasiya qildi.\n{ms}")
+            else:
+                await message.answer(
+                f"Registrasiya ketmadi.\nINN {inn} ORG da mavjud emas.\nQaytadan registrasiya qiling.")
+        except:
+            await message.answer(f"Registrasiya ketmadi.\nQaytadanregistrasiya qiling.\n{ms}")
+async def clients(message: Message):
+    # TODO clients /list
+    file1 = 'users.txt'
+    if message.from_user.id == superuser:  # superUser
+        r = await con.clients()
+        i = 0
+        with open(file1,'w', encoding="utf-8") as f:
+            for z in r:
+                i = i + 1
+                f.write(f"{i}.  {z[0]} {z[1]} {z[2]} {z[3]} {z[4]}\n")
+        logger.info(f"\n{message.from_user.id} Create List and Copy")
+        src = rootpath() + os.path.sep + file1
+        doc = open(src, 'rb')
+        await message.reply_document(doc)
+        logger.info(f"Created and getted file {src}")
 
 # @dp.message_handler(commands=["sendinn"], state="*", is_admin=True)
 async def send_inn(message: Message):
@@ -383,32 +388,12 @@ async def drop_adm(message: types.Message):
         await message.answer('dropped table ADMIN ...')
         #print(date_time,'dropped table ADMIN ...')
         logger.info(f"dropped table ADMIN ...")
-
-
-async def help(message: types.Message):
-    # TODO  /help
-    hlp = "/start - Fayl jo'natish\n" \
-          "/sendall - Hammaga habar yuborish\n"
-    hlp = hlp + "/reg INN Tel -registratsiya\n     INN- 9 hona raqam, tel- 998 bilan\n\n/info - ma'lumot olish\n"
-    hlp = hlp + "/rek  - rekvizitlarim\n"
-
-    if message.from_user.id == superuser:  # superUser
-        hlp = hlp + "\nSuperuser\n\n/sendinn INN # namorg  (#=9 Удалить)"
-        hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
-        hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
-        hlp = hlp + "\n/copy\n/copylog\n/droplog - очистка Log файла\n"
-        hlp = hlp + "\n/droporg - сброс ORG (очень осторожно!)\n/dropadm - сброс ADMIN (очень осторожно!)"
-    # await message.answer('<code>' + hlp + '</code>')
-    logger.info(f"\n{message.from_user.id} /help")
-    await message.answer(hlp)
-
-
 def register_admin(dp: Dispatcher):
-    #    dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
     dp.register_message_handler(adm_reg, commands=["addadmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_info, commands=["admins"], state="*", is_admin=True)
     dp.register_message_handler(user_reg, commands=["reg"], state="*", is_admin=True)
+    dp.register_message_handler(clients, commands=["list"], state="*", is_admin=True)
     dp.register_message_handler(send_inn, commands=["sendinn"], state="*", is_admin=True)
     dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
     dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
@@ -421,4 +406,3 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(droplogfile, commands=["droplog"], state="*", is_admin=True)
     dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
     dp.register_message_handler(drop_adm, commands=["dropadm"], state="*", is_admin=True)
-    dp.register_message_handler(help, commands=["help","?"], state="*", is_admin=True)

@@ -4,17 +4,15 @@ from pathlib import Path
 
 from aiogram import Dispatcher, types
 from aiogram.types import Message, ReplyKeyboardRemove
+
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text
 
-from create_bot import con, bot, logger
+from create_bot import con, bot, logger,superuser,dp
 
-from tgbot.keyboards.client_kb import kb_client, mas
+from tgbot.keyboards.client_kb import knopki
+from tgbot.keyboards.inline import gen_markup
 from .kwit import readxls
-
-
-# async def user_start(message: Message):
-#    await message.reply("Hello, user!")
 
 def rootpath() -> Path:
     """Returns project root folder."""
@@ -36,8 +34,9 @@ class FSMContakt(StatesGroup):
 
 async def com_start(message: types.Message):
     await FSMContakt.phone.set()
-    btn = types.KeyboardButton(text="Registratsiya", request_contact=True)
-    key1 = types.ReplyKeyboardMarkup(resize_keyboard=True).add(btn)
+    btn1 = types.KeyboardButton(text="Registratsiya", request_contact=True)
+    key1 = types.ReplyKeyboardMarkup(resize_keyboard=True).add(btn1)
+
     await message.answer("Registratsiya qilish (pastdagi knopkani bosing)", reply_markup=key1)
 
 
@@ -59,31 +58,32 @@ async def load_inn(message: types.Message, state=FSMContakt):
         if (len(message.text) == 9 and message.text.isdigit()):
             innz = int(message.text)
         else:
-            await message.reply("/start INN raqami 9 xonali son bo'lishi kerak.")
             innz = 0
-
         data['innorg'] = innz
 
     now = datetime.now()  # current date and time
     date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
 
     # Это до state.finish()
-    if await con.inn_exists(state):
-        if not await con.user_exists(state):
-            await con.add_user(state, date_time)
+    if innz !=0:
+        if await con.inn_exists(state):
+            if not await con.user_exists(state):
+                await con.add_user(state, date_time)
+            else:
+                await con.up_user(state, date_time)
+
+            logger.info(f"\nRegistratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
+            await message.answer("/help")
         else:
-            await con.up_user(state, date_time)
-        await message.answer("Ma'lumot olish uchun    /info")
+            # Если в таблице ORG не будет INN
+            # не будем регистрироват
+            # print(date_time,data['innorg'],"Нет такой INN")
+            logger.info(f"{data['innorg']} Нет такой INN")
+            await message.answer(f"{data['innorg']} INN ro'yhatda mavjud emas, qaytadan /start")
+        # Это до state.finish()
     else:
-        # Если в таблице ORG не будет INN
-        # не будем регистрироват
-        # print(date_time,data['innorg'],"Нет такой INN")
-        logger.info(f"{data['innorg']} Нет такой INN")
-        await message.answer("Bu INN ro'yhatda mavjud emas " + str(data['innorg']))
-    # Это до state.finish()
-
+        await message.reply(f"INN raqami 9 xonali son bo'lishi kerak, qaytadan /start")
     await state.finish()
-
 
 #    print(tuple(data.values()))  # Шу ерда хам ишлаяпти   state.finish() дан олдин булишши керак эди
 
@@ -94,14 +94,7 @@ async def cancel_hendler(message: types.Message, state=FSMContakt):
         return
     await state.finish()
     await message.reply('OK !')
-    await message.answer("Ma'lumot olish uchun    /info")
-
-
-# ответ на команду /info
-async def user_info(message: Message):
-    inn = await con.get_inn(message.chat.id)
-    logger.info(f"\n{message.from_user.id} /info")
-    await message.answer("Ma'lumot olish\n" + str(inn[0]), reply_markup=kb_client)
+    await message.answer("/help")
 
 async def rek(message: types.Message):
     z = await con.get_inn(message.from_user.id)
@@ -117,73 +110,67 @@ async def ok(message: types.Message):
     logger.info(f"Admin uchun id_user={message.from_user.id}")
 
     if (message.chat.type == 'private'):
-        await bot.send_message(139204666, "User_id " + str(message.from_user.id))
+        #await bot.send_message(139204666, "User_id " + str(message.from_user.id))
+        await bot.send_message(superuser, f"User: {message.from_user.id} {message.from_user.full_name}")
 
 
 async def help(message: types.Message):
+    # TODO  /help
+    admins_tab = await con.admins()
+    hlp = "/start - Registratsiya\n/rek  - rekvizitlarim\n/ok - Status\n"
+    if (message.from_user.id  in admins_tab):
+        hlp = hlp + "\n/sendall - Hammaga habar yuborish\n"
+    if message.from_user.id == superuser:  # superUser
+        hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/list - список Userов\n/sendinn INN # namorg  (#=9 Удалить)"
+        hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
+        hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
+        hlp = hlp + "\n/copy\n/copylog\n/droplog - очистка Log файла\n"
+        hlp = hlp + "\n/droporg - сброс ORG (очень осторожно!)\n/dropadm - сброс ADMIN (очень осторожно!)"
+    # await message.answer('<code>' + hlp + '</code>')
     logger.info(f"\n{message.from_user.id} /help")
-    await message.answer("/start - Registratsiya\n"
-                         "/info - Ma'lumot olish\n"
-                         "/rek  - rekvizitlarim\n"
-                         "/ok - Status")
+    await message.answer(hlp)
 
+    btn2 = types.KeyboardButton(text="/Oylik")
+    key2 = types.ReplyKeyboardMarkup(resize_keyboard=True).add(btn2)
+    await message.answer("<b>/Oylik tugmasini bosing</b>", reply_markup=key2)
 
-async def echo_info(message: types.Message):
-    if (len(message.text) > 4 and  (message.text[4] == '_')):
-        idd = message.from_user.id
+async def kwitok(msg: Message):
+    # TODO  kwitok
+    inn = await con.get_inn(msg.from_user.id)
+    logger.info(f"\n{msg.from_user.id} /Oylik")
+    markup = gen_markup(knopki(), "9999_99", 4)
+    await msg.answer(f"<b>{inn[0]}: {inn[4]}.\n{msg.from_user.full_name}.\nKerakli oyni tanlang.</b>", reply_markup=markup)
+@dp.callback_query_handler(lambda c: c.data and c.data[4]=='_')
+async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
+    code = callback_query.data
+
+    if code=='9999_99':
+        logger.info(f"\n{callback_query.from_user.id}  deleted all InlineKeyboards.")
+        #await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+    else:
+        #await callback_query.message.answer('Biroz kutib turing!')
+        idd = callback_query.from_user.id
         x = await con.get_inn(idd)
         inn = 0
         phoneNumber = ''
         if x != None:
             inn = x[0]
             phoneNumber = '+' + str(x[1])
-        logger.info(f"\n{message.from_user.id} /khopka")
-        logger.info(f"{message.from_user.id} {phoneNumber} 'Bazadan' {x}")
+        logger.info(f"\n{idd} khopka {code}")
+        logger.info(f"{idd} {phoneNumber} 'Bazadan' {x}")
 
         path_sep = os.path.sep
-        fil = rootpath() + path_sep + 'files' + path_sep + str(inn) + '_' + message.text + '.xls'
+        fil = rootpath() + path_sep + 'files' + path_sep + str(inn) + '_' + code + '.xls'
         logger.info(f"{fil}")
-        if message.text == mas[0]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[1]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[2]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[3]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[4]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[5]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[6]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[7]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[8]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[9]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[10]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        elif message.text == mas[11]:
-            sss = await readxls(fil, phoneNumber, inn)
-            await message.answer(sss)
-        else:
-            await message.answer("Noma'lum komanda berildi.")
-    else:
-        logger.info(f"\n{message.from_user.id}  Noma'lum komanda berildi")
-        await message.answer("Noma'lum komanda berildi.")
+        sss = await readxls(fil, phoneNumber, inn)
+        await callback_query.message.answer(sss)
+        logger.info(f"\n{callback_query.from_user.id} kwitokni oldi.")
+    await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+
+
+async def echo_info(message: types.Message):
+    logger.info(f"\n{message.from_user.id}  Noma'lum komanda berildi")
+    await message.answer("Noma'lum komanda berildi. /help")
 
 
 def register_user(dp: Dispatcher):
@@ -192,8 +179,8 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(load_inn, state=FSMContakt.innorg)
     dp.register_message_handler(cancel_hendler, state="*", commands=["otmena"])
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
-    dp.register_message_handler(user_info, commands=["info"])
     dp.register_message_handler(ok, commands=["ok"])
     dp.register_message_handler(rek, commands=["rek"])
-    dp.register_message_handler(help, commands=["help"])
+    dp.register_message_handler(help, commands=["help","?"])
+    dp.register_message_handler(kwitok,commands=["Oylik"])
     dp.register_message_handler(echo_info)
