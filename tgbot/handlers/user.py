@@ -124,8 +124,7 @@ async def help(message: types.Message):
         hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/list - список Userов\n/sendinn INN # namorg  (#=9 Удалить)"
         hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
-        hlp = hlp + "\n/copy\n/copylog\n/droplog - очистка Log файла\n"
-        hlp = hlp + "\n/droporg - сброс ORG (очень осторожно!)\n/dropadm - сброс ADMIN (очень осторожно!)"
+        hlp = hlp + "\n/copy\n/copylog\n/droplog - очистка Log файла"
     # await message.answer('<code>' + hlp + '</code>')
     logger.info(f"\n{message.from_user.id} /help")
     await message.answer(hlp)

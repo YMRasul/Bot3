@@ -367,7 +367,7 @@ async def droplogfile(message: types.Message):
             file.write("Start Log!!!\n")
         logger.info(f"Start Log {src}")
         await message.answer(f"dropped file {src}")
-
+'''
 async def drop_org(message: types.Message):
     if message.from_user.id == superuser:  # superUser
         logger.info(f"\n{message.from_user.id} /droporg natijasi")
@@ -388,6 +388,7 @@ async def drop_adm(message: types.Message):
         await message.answer('dropped table ADMIN ...')
         #print(date_time,'dropped table ADMIN ...')
         logger.info(f"dropped table ADMIN ...")
+'''
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(adm_reg, commands=["addadmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
@@ -404,5 +405,5 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(copydoc, commands=["copy"], state="*", is_admin=True)
     dp.register_message_handler(copylogfile, commands=["copylog"], state="*", is_admin=True)
     dp.register_message_handler(droplogfile, commands=["droplog"], state="*", is_admin=True)
-    dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
-    dp.register_message_handler(drop_adm, commands=["dropadm"], state="*", is_admin=True)
+#    dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
+#    dp.register_message_handler(drop_adm, commands=["dropadm"], state="*", is_admin=True)
