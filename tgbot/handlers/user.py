@@ -161,11 +161,18 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
         path_sep = os.path.sep
         fil = rootpath() + path_sep + 'files' + path_sep + str(inn) + '_' + code + '.xls'
         logger.info(f"{fil}")
-        sss = await readxls(fil, phoneNumber, inn)
-        await callback_query.message.answer(sss)
-        logger.info(f"\n{callback_query.from_user.id} kwitokni oldi.")
-    await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
 
+        rt = await readxls(code,fil, phoneNumber, inn)
+
+        #print(rt)
+        if (rt[0] > 0):
+            for ms in rt[1]:
+                await callback_query.message.answer('<code>' + ms + '</code>')
+            logger.info(f"\n{callback_query.from_user.id} kwitokni oldi.")
+        else:
+            await callback_query.message.answer(rt[1][0])
+            logger.info(f"\n{callback_query.from_user.id} {rt[1][0]} ")
+    await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
 
 async def echo_info(message: types.Message):
     logger.info(f"\n{message.from_user.id}  Noma'lum komanda berildi")
