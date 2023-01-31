@@ -121,7 +121,7 @@ async def help(message: types.Message):
     if (message.from_user.id  in admins_tab):
         hlp = hlp + "\n/sendall - Hammaga habar yuborish\n"
     if message.from_user.id == superuser:  # superUser
-        hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/list - список Userов\n/sendinn INN # namorg  (#=9 Удалить)"
+        hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/users - список Userов\n/addinn INN # namorg  (#=9 Удалить)"
         hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
         hlp = hlp + "\n/copy\n/copylog\n/droplog - очистка Log файла"
@@ -167,7 +167,7 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
         #print(rt)
         if (rt[0] > 0):
             for ms in rt[1]:
-                await callback_query.message.answer('<code>' + ms + '</code>')
+                await callback_query.message.answer('<pre>' + ms + '</pre>')
             logger.info(f"\n{callback_query.from_user.id} kwitokni oldi.")
         else:
             await callback_query.message.answer(rt[1][0])

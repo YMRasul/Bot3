@@ -128,7 +128,7 @@ async def clients(message: Message):
 async def send_inn(message: Message):
 #    now = datetime.now()  # current date and time
 #    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
-    text = message.text[9:]
+    text = message.text[8:]
     mess = " Xato,  /sendiin dan keyin probel\n" \
            "INN 9 hona raqam probel\n" \
            "keyin 1 hona raqam\n" \
@@ -256,8 +256,6 @@ async def send_all(message: Message):
 
 # @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
 async def scan_doc(message: types.document):
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
     try:
         file_info = await bot.get_file(message.document.file_id)
         downloaded_file = await bot.download_file(file_info.file_path)
@@ -269,23 +267,16 @@ async def scan_doc(message: types.document):
         logger.info(f"\n{message.from_user.id} Screpki natijasi")
         if  foun:
             r = await con.get_innorg(message.from_user.id)
-            #print(date_time,message.from_user.id,r[0],r[1],',',end=' ')
             with open(src, 'wb') as new_file:
                 new_file.write(downloaded_file.getvalue())
-            #print("сохранил как " + src)
-
             logger.info(f"{message.from_user.id} {r[0]} {r[1]} сохранил как {src}")
             await message.answer("Men buni saqlab qoydim, rahmat!")
         else:
             if message.from_user.id == superuser:  # superUser
                 with open(src, 'wb') as new_file:
                     new_file.write(downloaded_file.getvalue())
-
-                #print(date_time, superuser,'SuperUser',',' ,end=' ')
-                #print("cохранил как " + src)
                 logger.info(f"{superuser} SuperUser saved as {src}")
                 await message.answer("SuperUser tomonidan saqlab qo'yildi.")
-                #print(date_time,message.document.file_name, 'Не может быть сохранен, но SuperUser может сохранить.', message.from_user.id)
             else:
                 logger.info(f"{message.document.file_name} fayli qabul qilinmadi.")
                 await message.answer("Fayl qabul qilinmadi.")
@@ -394,8 +385,8 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_info, commands=["admins"], state="*", is_admin=True)
     dp.register_message_handler(user_reg, commands=["reg"], state="*", is_admin=True)
-    dp.register_message_handler(clients, commands=["list"], state="*", is_admin=True)
-    dp.register_message_handler(send_inn, commands=["sendinn"], state="*", is_admin=True)
+    dp.register_message_handler(clients, commands=["users"], state="*", is_admin=True)
+    dp.register_message_handler(send_inn, commands=["addinn"], state="*", is_admin=True)
     dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
     dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)

@@ -57,7 +57,7 @@ async def readxls(mes,filexls, nomertel,inn):
                 msg.append(sss)
             ret.append(msg)
         else:
-            sss = f"{nomertel} bo'yicha ma'lumot topilmadi...\n"
+            sss = f"{mes} ma'lumotida  {nomertel} nomeri topilmadi...\n"
             msg.append(sss)
             ret.append(msg)
 
