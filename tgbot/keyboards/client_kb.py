@@ -1,5 +1,7 @@
-from create_bot import today
+from datetime import date
 def knopki():
+    today = date.today()
+    #print(today)
     y = int(today.strftime("%Y"))
     m = int(today.strftime("%m"))
     i = 12

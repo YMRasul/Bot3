@@ -105,13 +105,21 @@ async def rek(message: types.Message):
 
 # @dp.message_handler(commands=["help"])
 async def ok(message: types.Message):
-    now = datetime.now()  # current date and time
     logger.info(f"\n{message.from_user.id} /ok")
     logger.info(f"Admin uchun id_user={message.from_user.id}")
 
+    z = await con.get_inn(message.from_user.id)
+    if (z == None):
+        s = f"id: {message.from_user.id} registratsiya qilinmagan."
+        await message.answer(f"{s} /start ni bosing!")
+    else:
+        s = f"<code>    id: {message.from_user.id}\n   Fio: {z[2]}\n   Tel: {z[1]}\nInnOrg: {z[0]}\nNamOrg: {z[4]}</code>"
+        await message.answer(s)
+
     if (message.chat.type == 'private'):
-        #await bot.send_message(139204666, "User_id " + str(message.from_user.id))
+        logger.info(f"\n{message.from_user.id} /ok")
         await bot.send_message(superuser, f"User: {message.from_user.id} {message.from_user.full_name}")
+        await bot.send_message(superuser, s)
 
 
 async def help(message: types.Message):
@@ -137,6 +145,7 @@ async def kwitok(msg: Message):
     # TODO  kwitok
     inn = await con.get_inn(msg.from_user.id)
     logger.info(f"\n{msg.from_user.id} /Oylik")
+    #print(knopki())
     markup = gen_markup(knopki(), "9999_99", 4)
     await msg.answer(f"<b>{inn[0]}: {inn[4]}.\n{msg.from_user.full_name}.\nKerakli oyni tanlang.</b>", reply_markup=markup)
 @dp.callback_query_handler(lambda c: c.data and c.data[4]=='_')

@@ -3,8 +3,6 @@ from aiogram import Bot, Dispatcher
 from tgbot.config import load_config,Config
 from tgbot.sqldb import Database
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from datetime import date
-
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -17,7 +15,6 @@ logging.basicConfig(
     format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s'
 )
 '''
-today = date.today()
 
 config = load_config(".env")
 #config = load_config()
