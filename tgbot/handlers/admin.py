@@ -16,17 +16,16 @@ async def adm_reg(message: Message):
             fio = ms[2]
 
             if await con.admin_add(id, innorg, fio) == None:
-                await message.answer(str(id) + " registrasiya qilindi")
+                await message.answer(f"{id} {innorg} registrasiya qilindi")
                 #print(date_time,'Регистрация ', id, innorg, fio)
                 logger.info(f"\n{message.from_user.id}: Registrasiya {id} {innorg} {fio}")
             else:
-                await message.answer(str(id) + " rekvizitlari tuzatildi")
-                #print(date_time,'Изменение реквизита', id, 'на', innorg, fio)
-                logger.info(f"\n{message.from_user.id}: {id} rekvizitlri {innorg} {fio} ga almashdi")
+                await message.answer(f"{id} {innorg} rekvizitlari tuzatildi")
+                logger.info(f"\n{message.from_user.id}: {id} {innorg}  rekvizitlri {fio} ga almashdi")
+
         except:
-            #print(date_time,'Registrasiya ketmadi ' + text + ' (/addadmin Number , Number , Text)')
             logger.info(f"\n{message.from_user.id}: Registrasiya ketmadi {text} (/addadmin Number , Number , Text)")
-            await message.answer('Registrasiya ketmadi ' + text + ' (/addadmin Number , Number , Text)')
+            await message.answer(f'Registrasiya ketmadi {text} (/addadmin Number , Number , Text)')
     else:
         #print(date_time,"Не SuperUser дает команду /addadmin")
         logger.info(f"\n{message.from_user.id}: Bu SuperUser ning komandasi  /addadmin")
@@ -253,7 +252,7 @@ async def send_all(message: Message):
                 await message.answer('Всем успешно отправлено.')
                 logger.info(f"All sended ")
 
-
+'''
 # @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
 async def scan_doc(message: types.document):
     try:
@@ -280,6 +279,66 @@ async def scan_doc(message: types.document):
             else:
                 logger.info(f"{message.document.file_name} fayli qabul qilinmadi.")
                 await message.answer("Fayl qabul qilinmadi.")
+    except Exception as e:
+        await message.answer(e)
+'''
+# @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
+async def scan_doc(message: types.document):
+    file_info = await bot.get_file(message.document.file_id)
+    downloaded_file = await bot.download_file(file_info.file_path)
+    path_sep = os.path.sep
+    fil = rootpath() + path_sep + 'files' + path_sep
+    src = fil + message.document.file_name
+
+    if message.from_user.id == superuser:  # superUser
+        with open(src, 'wb') as new_file:
+            new_file.write(downloaded_file.getvalue())
+        logger.info(f"{superuser} SuperUser saved as {src}")
+        await message.answer("SuperUser tomonidan saqlab qo'yildi.")
+    else:
+        innfile = message.document.file_name[0:9]
+        try:
+            inn = int(innfile)
+            adm = await con.poisk_id(message.from_user.id)
+            #print(f"{inn=} {adm=}")
+            logger.info(f"{message.from_user.id} Screpki natijasi")
+
+            if (inn in adm):
+                r = await con.get_innfio(message.from_user.id, inn)
+                with open(src, 'wb') as new_file:
+                    new_file.write(downloaded_file.getvalue())
+                logger.info(f"{message.from_user.id} {inn} {r[0]} сохранил как {src}")
+                await message.answer("Men buni saqlab qoydim, rahmat!")
+                await bot.send_message(superuser, f"{message.document.file_name} User:{message.from_user.id} {inn} {r[0]} tomonidan yuborildi")
+            else:
+                logger.info(f"User={message.from_user.id} INN={inn} ga adminstartor emas...")
+                await message.answer(f"{message.document.file_name} sizga tegishli emas...")
+                await bot.send_message(superuser, f"{message.document.file_name} {message.from_user.id} ga tegishli emas")
+        except Exception as e:
+            await message.answer("Fayl qabul qilinmadi.")
+            await bot.send_message(superuser, f"{message.from_user.id}: {e} bu otchet emas")
+
+async def scan_photo(message: types.file):
+    try:
+        file_info = await bot.get_file(message.photo[-1].file_id)
+        downloaded_file = await bot.download_file(file_info.file_path)
+        file_name,file_extension = os.path.splitext(file_info.file_path)
+
+        fnam = file_name.split('/')
+        filename = fnam[-1]
+        path_sep = os.path.sep
+        fil = rootpath() + path_sep + 'photos' + path_sep
+        src = fil + filename + file_extension
+
+        if message.from_user.id == superuser:  # superUser
+            with open(src, 'wb') as new_file:
+                new_file.write(downloaded_file.getvalue())
+            logger.info(f"{superuser} SuperUser saved as {src}")
+            await message.answer(f"{src}\nholatda SuperUser tomonidan saqlab qo'yildi.")
+        else:
+           logger.info(f"fayli qabul qilinmadi.")
+           await message.answer("Fayl qabul qilinmadi.")
+
     except Exception as e:
         await message.answer(e)
 
@@ -313,19 +372,11 @@ async def deletefile(message: types.Message):
             await message.answer(f"{filename} не найден.")
             logger.info(f"{src} not found.")
 async def copydoc(message: types.Message):
-    file1 = 'dbase_sqlite.db'
     if message.from_user.id == superuser:  # superUser
         logger.info(f"\n{message.from_user.id} /copy natijasi")
         path_sep = os.path.sep
         fil = rootpath() + path_sep + 'files' + path_sep
-        fil1 = rootpath() + path_sep
-
-        src = fil1 + file1
-        doc = open(src, 'rb')
-        i = 1
-        await message.reply_document(doc)
-#        print(date_time,i, 'Получен файл', src)
-        logger.info(f"{i} getted file {src}")
+        i = 0
         for root, dirs, files in os.walk(fil):
             for filename in files:
                 src = fil + filename
@@ -334,6 +385,18 @@ async def copydoc(message: types.Message):
                 i = i + 1
                 logger.info(f"{i} getted file {src}")
                 #print(date_time,i, 'Получен файл', src)
+async def copybase(message: types.Message):
+    file1 = 'dbase_sqlite.db'
+    if message.from_user.id == superuser:  # superUser
+        logger.info(f"\n{message.from_user.id} /copybase natijasi")
+        path_sep = os.path.sep
+        fil = rootpath() + path_sep + 'files' + path_sep
+        fil1 = rootpath() + path_sep
+
+        src = fil1 + file1
+        doc = open(src, 'rb')
+        await message.reply_document(doc)
+        logger.info(f"getted file {src}")
 
 async def copylogfile(message: types.Message):
     file1 = 'oylikbot.log'
@@ -369,17 +432,14 @@ async def drop_org(message: types.Message):
         #print(date_time,'dropping table ORG ...')
         logger.info(f"dropped table ORG ...")
 
-
-async def drop_adm(message: types.Message):
+'''
+async def dropadm(message: types.Message):
     if message.from_user.id == superuser:  # superUser
         logger.info(f"\n{message.from_user.id} /dropadm natijasi")
-        #now = datetime.now()  # current date and time
-        #date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
         await con.dropadm()
         await message.answer('dropped table ADMIN ...')
-        #print(date_time,'dropped table ADMIN ...')
-        logger.info(f"dropped table ADMIN ...")
-'''
+        logger.info(f"{message.from_user.id} dropped table ADMIN ...")
+
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(adm_reg, commands=["addadmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
@@ -391,10 +451,12 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT], is_admin=True)
+    dp.register_message_handler(scan_photo,content_types=[types.ContentType.PHOTO], is_admin=True)
     dp.register_message_handler(dirfiles, commands=["dir"], state="*", is_admin=True)
     dp.register_message_handler(deletefile, commands=["del"], state="*", is_admin=True)
     dp.register_message_handler(copydoc, commands=["copy"], state="*", is_admin=True)
+    dp.register_message_handler(copybase, commands=["copybase"], state="*", is_admin=True)
     dp.register_message_handler(copylogfile, commands=["copylog"], state="*", is_admin=True)
     dp.register_message_handler(droplogfile, commands=["droplog"], state="*", is_admin=True)
 #    dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
-#    dp.register_message_handler(drop_adm, commands=["dropadm"], state="*", is_admin=True)
+    dp.register_message_handler(dropadm, commands=["dropadm"], state="*", is_admin=True)

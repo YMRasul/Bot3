@@ -132,7 +132,7 @@ async def help(message: types.Message):
         hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/users - список Userов\n/addinn INN # namorg  (#=9 Удалить)"
         hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
-        hlp = hlp + "\n/copy\n/copylog\n/droplog - очистка Log файла"
+        hlp = hlp + "\n/copy\n/copybase\n/copylog\n/droplog - очистка Log файла"
     # await message.answer('<code>' + hlp + '</code>')
     logger.info(f"\n{message.from_user.id} /help")
     await message.answer(hlp)
@@ -147,7 +147,11 @@ async def kwitok(msg: Message):
     logger.info(f"\n{msg.from_user.id} /Oylik")
     #print(knopki())
     markup = gen_markup(knopki(), "9999_99", 4)
-    await msg.answer(f"<b>{inn[0]}: {inn[4]}.\n{msg.from_user.full_name}.\nKerakli oyni tanlang.</b>", reply_markup=markup)
+    if inn==None:
+        logger.info(f"\n{msg.from_user.id} not found in CLIENT... Qayta registratsiya qiling.")
+        await msg.answer(f"Qayta registratsiya qiling.  /start")
+    else:
+        await msg.answer(f"<b>{inn[0]}: {inn[4]}.\n{msg.from_user.full_name}.\nKerakli oyni tanlang.</b>", reply_markup=markup)
 @dp.callback_query_handler(lambda c: c.data and c.data[4]=='_')
 async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
     code = callback_query.data
@@ -177,10 +181,12 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
         if (rt[0] > 0):
             for ms in rt[1]:
                 await callback_query.message.answer('<pre>' + ms + '</pre>')
-            logger.info(f"\n{callback_query.from_user.id} kwitokni oldi.")
+            await bot.send_message(superuser, f"User: {inn} {callback_query.from_user.id} {callback_query.from_user.full_name} {code} kwitokni oldi.")
+            logger.info(f"\n{inn} {callback_query.from_user.id} {code} kwitokni oldi.")
         else:
             await callback_query.message.answer(rt[1][0])
-            logger.info(f"\n{callback_query.from_user.id} {rt[1][0]} ")
+            await bot.send_message(superuser, f"User: {callback_query.from_user.id} {callback_query.from_user.full_name} {rt[1][0]}")
+            logger.info(f"\n{callback_query.from_user.id} {rt[1][0]}")
     await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
 
 async def echo_info(message: types.Message):
