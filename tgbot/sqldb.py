@@ -12,7 +12,7 @@ class Database:
         tables = [
             '''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER,innorg INTEGER,fio TEXT,prz INTEGER)''',
             '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER, nam TEXT)''',
-            '''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id,org) )'''
+            '''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id, org ) )'''
         ]
         for tab in tables:
             self.createTable(tab)
@@ -26,6 +26,7 @@ class Database:
 
     def createTable(self, table):
         with self.base:
+            #print(table)
             self.cur.execute(table)
 
     async def user_exists(self, state):
@@ -61,16 +62,18 @@ class Database:
             return (r)
     async def get_rek(self, idx):
         with self.base:
-            r = self.cur.execute('SELECT org,fio,(select nam FROM org WHERE (admin.org=org.inn)) \
-            FROM admin WHERE admin_id == ?', (idx,)).fetchone()
+            r = self.cur.execute('SELECT org,fio FROM admin WHERE admin_id == ?', (idx,)).fetchall()
+            #print(r)
         return (r)
 
     async def get_users(self):
         with self.base:
             return self.cur.execute('SELECT idp,fio,prz,innorg  FROM   client').fetchall()
     async def get_users_org(self,inn):
+        #print(inn)
         with self.base:
-            return self.cur.execute('SELECT idp,fio,prz  FROM client WHERE innorg==?',(inn,)).fetchall()
+            r = self.cur.execute('SELECT idp,fio,prz FROM client WHERE innorg==?' ,(inn,)).fetchall()
+            return r
 
     async def set_active(self, prz, user_id):
         with self.base:
@@ -103,9 +106,9 @@ class Database:
                 self.cur.execute('UPDATE admin SET fio==? WHERE (admin_id ==? and org==?)', (fio,id,innorg,))
                 #print('Update')
         return r
-    async def admin_del(self, id):
+    async def admin_del(self, id,inn):
         with self.base:
-            return self.cur.execute('DELETE FROM admin WHERE admin_id==?', (id,))
+            return self.cur.execute('DELETE FROM admin WHERE (admin_id==? and org==?)', (id,inn,))
     async def admins(self):
         x = []
         with self.base:
@@ -118,10 +121,10 @@ class Database:
     async def admins_info(self):
         with self.base:
             return self.cur.execute('select admin_id,fio,org,(select nam FROM org WHERE (admin.org=org.inn))\
-            from admin').fetchall()
+            from admin order by org,admin_id').fetchall()
     async def inn_info(self):
         with self.base:
-            return self.cur.execute('select inn,prz,nam from org').fetchall()
+            return self.cur.execute('select inn,prz,nam from org order by inn').fetchall()
     async def inn_rek(self,inn):
         with self.base:
             return self.cur.execute('select nam from org WHERE inn == ?', (inn,)).fetchone()
@@ -133,23 +136,23 @@ class Database:
     async def dropadm(self):
         with self.base:
             self.cur.execute('DROP TABLE admin')
-            s ='''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id,org) )'''
+            s ='''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id, org ) )'''
             self.createTable(s)
 
     async def inn_add(self, inn, prz,nam):
         with self.base:
             r = self.cur.execute('SELECT inn FROM org WHERE inn == ?', (inn,)).fetchmany(1)
             if bool(len(r)):
-                if prz == 9:
-                    #print("Delete ",inn)
-                    self.cur.execute('DELETE FROM org WHERE inn==?', (inn,))
-                else:
-                    self.cur.execute('UPDATE org SET  prz==?, nam==? WHERE inn==?', (prz,nam,inn,))
-                    #print("Update", inn,prz,nam)
+                self.cur.execute('UPDATE org SET  prz==?, nam==? WHERE inn==?', (prz,nam,inn,))
+                #print("Update", inn,prz,nam)
             else:
                 self.cur.execute('INSERT INTO org VALUES (?,?,?)', (inn, prz,nam,))
                 #print("Insert",inn,prz,nam)
-
+    async def inn_del(self, inn):
+        with self.base:
+            self.cur.execute('DELETE FROM admin WHERE org==?', (inn,))
+            self.cur.execute('DELETE FROM org WHERE inn==?', (inn,))
+        #print("Delete cascade", inn)
     async def reg_id(self, id, inn, tel, fio):
         with self.base:
             r = self.cur.execute('SELECT idp FROM client WHERE idp == ?', (id,)).fetchone()

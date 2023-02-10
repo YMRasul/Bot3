@@ -1,7 +1,5 @@
 __pycache__/
 env/
 .idea/*
-files/
-photos/
 env
 bot_run.bat

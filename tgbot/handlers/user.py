@@ -98,9 +98,13 @@ async def cancel_hendler(message: types.Message, state=FSMContakt):
 
 async def rek(message: types.Message):
     z = await con.get_inn(message.from_user.id)
-    s = f"    id: {message.from_user.id}\n   Fio: {z[2]}\n   Tel: {z[1]}\nInnOrg: {z[0]}\nNamOrg: {z[4]}"
-    logger.info(f"\n{message.from_user.id} /rek rekvizitlarim")
-    await message.answer('<code>' + s + '</code>')
+    if z==None:
+        s = '<b>Registratsiyadan qilinmagansiz.</b>   /start'
+    else:
+        s = f"<code>    id: {message.from_user.id}\n   Fio: {z[2]}\n   Tel: {z[1]}\nInnOrg: {z[0]}\nNamOrg: {z[4]}</code>"
+
+    logger.info(f"\n{message.from_user.id} /rek rekvizitlarim {s}")
+    await message.answer(s)
 
 
 # @dp.message_handler(commands=["help"])
@@ -109,17 +113,17 @@ async def ok(message: types.Message):
     logger.info(f"Admin uchun id_user={message.from_user.id}")
 
     z = await con.get_inn(message.from_user.id)
+    #print(f"{z=} {message.from_user.id=} ")
     if (z == None):
-        s = f"id: {message.from_user.id} registratsiya qilinmagan."
-        await message.answer(f"{s} /start ni bosing!")
+        s = f"<b>{message.from_user.full_name} registratsiya qilinmagan.</b>"
+        await message.answer(s+'   /start')
     else:
         s = f"<code>    id: {message.from_user.id}\n   Fio: {z[2]}\n   Tel: {z[1]}\nInnOrg: {z[0]}\nNamOrg: {z[4]}</code>"
         await message.answer(s)
 
     if (message.chat.type == 'private'):
         logger.info(f"\n{message.from_user.id} /ok")
-        await bot.send_message(superuser, f"User: {message.from_user.id} {message.from_user.full_name}")
-        await bot.send_message(superuser, s)
+        await bot.send_message(superuser, f"User: {message.from_user.id}\n{s}")
 
 
 async def help(message: types.Message):
@@ -127,9 +131,11 @@ async def help(message: types.Message):
     admins_tab = await con.admins()
     hlp = "/start - Registratsiya\n/rek  - rekvizitlarim\n/ok - Status\n"
     if (message.from_user.id  in admins_tab):
-        hlp = hlp + "\n/sendall - Hammaga habar yuborish\n"
+        hlp = hlp + "\n/sendall INN Text - 'INN odamlariga Text yuborish'"
+        hlp = hlp + "\n/dirx INN  - 'INN hisobotlarini ko'rish'\n/my  - mening tashkilotlarim\n"
     if message.from_user.id == superuser:  # superUser
-        hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/users - список Userов\n/addinn INN # namorg  (#=9 Удалить)"
+        hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/users - список Userов\n/addinn INN N namorg"
+        hlp = hlp + "\n/delinn INN"
         hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
         hlp = hlp + "\n/copy\n/copybase\n/copylog\n/droplog - очистка Log файла"
@@ -144,7 +150,7 @@ async def help(message: types.Message):
 async def kwitok(msg: Message):
     # TODO  kwitok
     inn = await con.get_inn(msg.from_user.id)
-    logger.info(f"\n{msg.from_user.id} /Oylik")
+    logger.info(f"{msg.from_user.id} /Oylik")
     #print(knopki())
     markup = gen_markup(knopki(), "9999_99", 4)
     if inn==None:
@@ -156,10 +162,7 @@ async def kwitok(msg: Message):
 async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
     code = callback_query.data
 
-    if code=='9999_99':
-        logger.info(f"\n{callback_query.from_user.id}  deleted all InlineKeyboards.")
-        #await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
-    else:
+    if code !='9999_99':
         #await callback_query.message.answer('Biroz kutib turing!')
         idd = callback_query.from_user.id
         x = await con.get_inn(idd)
@@ -168,12 +171,13 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
         if x != None:
             inn = x[0]
             phoneNumber = '+' + str(x[1])
-        logger.info(f"\n{idd} khopka {code}")
-        logger.info(f"{idd} {phoneNumber} 'Bazadan' {x}")
+        logger.info(f"{idd} khopka {code}")
+        #logger.info(f"{idd} {phoneNumber} 'Bazadan' {x}")
 
         path_sep = os.path.sep
         fil = rootpath() + path_sep + 'files' + path_sep + str(inn) + '_' + code + '.xls'
-        logger.info(f"{fil}")
+
+        #logger.info(f"{fil}")
 
         rt = await readxls(code,fil, phoneNumber, inn)
 
@@ -182,15 +186,20 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
             for ms in rt[1]:
                 await callback_query.message.answer('<pre>' + ms + '</pre>')
             await bot.send_message(superuser, f"User: {inn} {callback_query.from_user.id} {callback_query.from_user.full_name} {code} kwitokni oldi.")
-            logger.info(f"\n{inn} {callback_query.from_user.id} {code} kwitokni oldi.")
+            logger.info(f"{inn} {callback_query.from_user.id} {code} kwitokni oldi.")
         else:
             await callback_query.message.answer(rt[1][0])
             await bot.send_message(superuser, f"User: {callback_query.from_user.id} {callback_query.from_user.full_name} {rt[1][0]}")
             logger.info(f"\n{callback_query.from_user.id} {rt[1][0]}")
-    await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+    try:
+        #print(f"{code=}")
+        await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+        logger.info(f"{callback_query.from_user.id}  InlineKeyboards deleted.")
+    except:
+        logger.info(f"Ощибка при удаление InlineKeyboards.")
 
 async def echo_info(message: types.Message):
-    logger.info(f"\n{message.from_user.id}  Noma'lum komanda berildi")
+    logger.info(f"{message.from_user.id}  Noma'lum komanda berildi")
     await message.answer("Noma'lum komanda berildi. /help")
 
 

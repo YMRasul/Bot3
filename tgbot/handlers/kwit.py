@@ -19,7 +19,7 @@ async def readxls(mes,filexls, nomertel,inn):
         for m in range(row):
             tel = ''.join(str(sheet.cell_value(m, 0)).strip().split(' '))
             if (nomertel==tel  or nomertel1==tel):
-                logger.info(f"{nomertel} {sheet.cell_value(m, 0)}")
+                #logger.info(f"{nomertel} {sheet.cell_value(m, 0)}")
                 kol.append(m)
         frm = 18
         if len(kol) > 0:
@@ -30,7 +30,7 @@ async def readxls(mes,filexls, nomertel,inn):
                 rek = await con.inn_rek(inn)
                 if not None:
                     sss = str(inn) + ':' + rek[0]
-                    logger.info(f"{sss}")
+                    #logger.info(f"{sss}")
                     sss = sss + '\n'
                 for i in range(1, col):
                     if (i > 9):
@@ -67,5 +67,4 @@ async def readxls(mes,filexls, nomertel,inn):
         ret.append(msg)
         logger.info(f"{err}")
         logger.info(f"{filexls} fayli topilmadi")
-
     return ret

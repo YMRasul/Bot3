@@ -7,3 +7,4 @@ def gen_markup(texts: list, prefix: str, row_width: int) -> InlineKeyboardMarkup
         else:
             markup.insert(InlineKeyboardButton(f"{text}", callback_data=f"{prefix}"))
     return markup
+

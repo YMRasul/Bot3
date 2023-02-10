@@ -3,7 +3,9 @@ from aiogram import Dispatcher, types
 from aiogram.types import Message
 from create_bot import bot, con, superuser,logger  # ,today
 from .user import rootpath
+
 import os
+
 
 async def adm_reg(message: Message):
     text = message.text[10:].strip()
@@ -31,38 +33,33 @@ async def adm_reg(message: Message):
         logger.info(f"\n{message.from_user.id}: Bu SuperUser ning komandasi  /addadmin")
         await message.answer("Это команда SuperUserа")
 
-
 async def adm_del(message: Message):
-    text = message.text[10:]
-    s = text[0:].strip()
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
+    text = message.text[10:].strip()
+    ms = [i.strip() for i in text.split(',')]
     if message.from_user.id == superuser:  # superUser
         try:
-            id = int(s)
-            #print(date_time,"Удаление по команде /deladmin", id)
-            logger.info(f"\n{message.from_user.id}: Udaleniye po komande /deladmin {id}")
+            id = int(ms[0])
+            inn = int(ms[1])
+            logger.info(f"{message.from_user.id}: Udaleniye po komande /deladmin {id},{inn}")
             if await con.admin_exists(id):
-                await con.admin_del(id)
-                await message.answer("Удален Admin id=" + str(id))
-                #print(date_time,"Удален Admin id=" + str(id))
-                logger.info(f"Admin {id} deleted")
+                if await con.inn_exists2(inn):
+                    await con.admin_del(id, inn)
+                    await message.answer(f"Удален Admin {id=} , {inn=}")
+                    logger.info(f"Admin {id=} , {inn=} deleted")
+                else:
+                    await message.answer(f"Not deleted. {inn} INN ro'yhatda mavjud emas")
+                    logger.info(f"Not deleted. {inn} INN ro'yhatda mavjud emas")
             else:
-                await message.answer(str(id) + " admin ro'yhatda mavjud emas")
-                #print(date_time,str(id) + " такой админ в списке нет")
-                logger.info(f"{id} not exist in table admin")
+                await message.answer(f"Not deleted. {id} admin ro'yhatda mavjud emas")
+                logger.info(f"Not deleted. {id} admin ro'yhatda mavjud emas")
+
         except:
-            await message.answer("Noto'g'ri id=" + s)
-    else:
-        #print(date_time,"Не SuperUser дает команду /deldmin")
-        logger.info(f"/deladmin SuperUser komandasi")
-        await message.answer("Это команда SuperUserа")
+            logger.info(f"{message.from_user.id}: Deladmin ketmadi {text} (/deladmin Number , Number)")
+            await message.answer(f'Deladmin ketmadi {text} (/deladmin Number , Number)')
 
 async def adm_info(message: Message):
     #text = '         id '+'   inn    '+'fio\n'
     text = ''
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
     if message.from_user.id == superuser:  # superUser
         r = await con.admins_info()
         if len(r) != 0:
@@ -70,13 +67,17 @@ async def adm_info(message: Message):
             logger.info(f"\n{message.from_user.id}: /admins komandasi natijasi")
             for m in r:
                 #print(date_time,m[0], m[1], m[2],m[3])
-                id = str(m[0]).rjust(12)
-                org = m[3]
+
+                #print(m)
+
+                id = str(m[0]).rjust(14)
+                org = m[3].ljust(20)
                 fio = m[1]
                 if (org is None):
                     org = 'not exist in ORG'
-                logger.info(f"{id} {fio} {m[2]} {org}")
-                text = text + id + ' ' + fio + '\n' + str(m[2]).rjust(12) + ' ' + org +"\n\n"
+                logger.info(f"{id} {m[2]} {org} [{fio}]")
+                text = text + f"{id} {m[2]} {org} [{fio}]\n"
+
             await message.answer('<code>' + text+ '</code>')
         else:
             await message.answer("Admin lar ro'xati bo'sh ")
@@ -125,29 +126,39 @@ async def clients(message: Message):
 
 # @dp.message_handler(commands=["sendinn"], state="*", is_admin=True)
 async def send_inn(message: Message):
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
     text = message.text[8:]
-    mess = " Xato,  /sendiin dan keyin probel\n" \
-           "INN 9 hona raqam probel\n" \
-           "keyin 1 hona raqam\n" \
-           "va probel keyin nomi\n"
+    mess = " Xato,  /addiin dan keyin probel\n" \
+       "INN 9 hona raqam probel\n" \
+       "keyin 1 hona raqam\n" \
+       "va probel keyin nomi\n"
     if message.from_user.id == superuser:  # superUser
         try:
             inn = int(text[0:9])
             prz = int(text[10:11])
             nam = text[12:]
-            # print(inn,'-',prz,'-',nam)
+            print(f"{inn=} {prz=} {nam=}")
             await con.inn_add(inn, prz, nam)
-
-            if prz == 9:
-                await message.answer("Delete INN " + str(inn))
-                #print(date_time,inn,prz,nam,"Delete INN " + str(inn))
-                logger.info(f"\n{message.from_user.id}: {inn} {prz} {nam} Deleted INN {inn}")
-            else:
-                await message.answer("Insert or Update INN " + str(inn))
-                #print(date_time,inn,prz,nam,"Insert or Update INN " + str(inn))
-                logger.info(f"\n{message.from_user.id}: {inn} {prz} {nam} Inserted or Updated INN {inn}")
+            await message.answer("Insert or Update INN " + str(inn))
+            logger.info(f"{message.from_user.id}: {inn} {prz} {nam} Inserted or Updated INN {inn}")
+        except:
+            await message.answer(mess)
+    else:
+        #print(date_time,"Не SuperUser дает команду /sendinn")
+        logger.info(f"{message.from_user.id}: /sendinn this superusers command")
+        await message.answer("Это команда SuperUserа")
+###################################################################
+async def del_inn(message: Message):
+    text = message.text[8:]
+    mess = " Xato,  /deliin dan keyin probel\n" \
+           "keyin INN 9 hona raqam\n"
+    if message.from_user.id == superuser:  # superUser
+        try:
+            inn = int(text[0:9])
+            #print(f"{inn=}")
+            await con.inn_del(inn)
+            await message.answer(f"Delete INN {inn}")
+            #print(date_time,inn,prz,nam,"Delete INN " + str(inn))
+            logger.info(f"{message.from_user.id}: Deleted INN {inn}")
         except:
             await message.answer(mess)
     else:
@@ -159,28 +170,31 @@ async def send_inn(message: Message):
 # dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
 async def info_inn(message: Message):
     # //TODO  info_inn
-#    now = datetime.now()  # current date and time
-#    date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
     if message.from_user.id == superuser:  # superUser
-        logger.info(f"\n{message.from_user.id}/inns results")
+        logger.info(f"{message.from_user.id}/inns results")
         #print(f"\n{message.from_user.id}/inns results")
         inns = await con.inn_info()
+        s1=s2=s3=0
+        s = 'ORG is empty.'
         if inns:
+            s ='\n'
             for inn in inns:
                 r = await con.innUser(inn[0],1)
-                act = str(r[0]).ljust(5)
-
                 z = await con.innUser(inn[0],0)
-                dea = str(z[0]).ljust(5)
 
-                tot = str(r[0]+z[0]).ljust(5)
+                s1 = s1 + r[0]+z[0]
+                s2 = s2 + r[0]
+                s3 = s3 + z[0]
 
-                s = f"{inn[0]} {inn[1]} {inn[2]}\nTotal: {tot}\nActiv: {act}\nNotac: {dea}"
-                await message.answer('<code>' + s+ '</code>')
-                #print(date_time,str(inn[1]) + ' ' + str(inn[0]) + ' ' + inn[2])
-                logger.info(f"{inn[1]} {inn[0]} {inn[2]}")
+                s = s + f"{inn[0]} {inn[1]} {inn[2]}. ( {r[0]+z[0]},{r[0]},{z[0]} )\n"
+
+            s = s + f"Users total {s1},{s2},{s3}\n"
+            await message.answer('<b>' + s+ '</b>')
+            #print(date_time,str(inn[1]) + ' ' + str(inn[0]) + ' ' + inn[2])
+            logger.info(f"{s}")
         else:
-            await message.answer('ORG is empty.')
+            await message.answer(s)
+            logger.info(f"{s}")
 
     else:
         #print(date_time,"/inns SuperUser's command")
@@ -215,73 +229,54 @@ async def send_adm(message: Message):
                     logger.info(f"Admin {s} not active")
 
 # @dp.message_handler(commands=["sendall"], is_admin=True)
+
+async def org(ms):
+    kn =[]
+    ln = len(ms)
+    if ln > 0:
+        for i in range(ln):
+            kn.append(str(ms[i][0]).strip())
+    return(kn)
 async def send_all(message: Message):
     '''
-    Рассылка всем юзерам данного админа
+    Рассылка всем юзерам организации данного админа
     '''
+    msg = message.text[9:]
+    inn = msg[0:9]
+    txt = msg[10:]
+
     user_id = message.from_user.id
     #print("Админстраторы " + str(config.tg_bot.admin_ids))
     z = await con.get_rek(user_id)
-    if ((message.chat.type == 'private') and (z != None)):
-        logger.info(f"\n{message.from_user.id} /sendall natijasi...")
-        logger.info(f"/sendall {z}")
-        if z[2] == None:
-            #print('У админа нет органиции с таким кодом',z[0])
-            logger.info(f"Bu adminda {z[0]} kodli organitsiya yo'q")
-            await message.answer('У админа нет органиции с таким кодом '+str(z[0]))
-        else:
-            text = message.text[9:]
-            users = await con.get_users_org(z[0])
-            if ((users != None) and (text!='') ):
+    knp = await org(z)
+    if inn in knp:
+        #print(f"{inn} in {knp}")
+        if (message.chat.type == 'private'):
+            users = await con.get_users_org(int(inn))
+            #print(f"{users=}")
+            if (len(users) > 0):
                 for row in users:
-                    #now = datetime.now()  # current date and time
-                    #date_time = now.strftime("%Y.%m.%d %H:%M:%S") + ':'
                     try:
                         if row[1] == None:
                             row[1] = ''
-                        await bot.send_message(row[0], text)
+
+                        await bot.send_message(row[0], txt)
+
                         if row[2] != 1:
                             await con.set_active(1, row[0])
+
                         await bot.send_message(message.from_user.id, str(row[0]) + ": " + row[1])
-                        #print(date_time,"Рассылка юзеру",row[0],row[1],' от админа ',user_id,z[1],z[0],z[2])
-                        logger.info(f"Admin {user_id} {z[1]} {z[0]} {z[2]} dan User {row[0]} {row[1]} uchun yuborildi")
+
+                        logger.info(f"Admin {user_id} dan User {row[0]} {row[1]} uchun yuborildi")
                     except:
                         await con.set_active(0, row[0])
-                        #print(date_time,"Юзер " + str(row[0]) + " " + row[1] + " не активен")
+                        await bot.send_message(message.from_user.id,f"{row[0]} {row[1]} aktiv emas.")
                         logger.info(f"User {row[0]} {row[1]} not active")
-                await message.answer('Всем успешно отправлено.')
-                logger.info(f"All sended ")
-
-'''
-# @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
-async def scan_doc(message: types.document):
-    try:
-        file_info = await bot.get_file(message.document.file_id)
-        downloaded_file = await bot.download_file(file_info.file_path)
-        path_sep = os.path.sep
-        fil = rootpath() + path_sep + 'files' + path_sep
-        src = fil + message.document.file_name
-
-        foun = await con.poisk_id(message.from_user.id, message.document.file_name)
-        logger.info(f"\n{message.from_user.id} Screpki natijasi")
-        if  foun:
-            r = await con.get_innorg(message.from_user.id)
-            with open(src, 'wb') as new_file:
-                new_file.write(downloaded_file.getvalue())
-            logger.info(f"{message.from_user.id} {r[0]} {r[1]} сохранил как {src}")
-            await message.answer("Men buni saqlab qoydim, rahmat!")
-        else:
-            if message.from_user.id == superuser:  # superUser
-                with open(src, 'wb') as new_file:
-                    new_file.write(downloaded_file.getvalue())
-                logger.info(f"{superuser} SuperUser saved as {src}")
-                await message.answer("SuperUser tomonidan saqlab qo'yildi.")
             else:
-                logger.info(f"{message.document.file_name} fayli qabul qilinmadi.")
-                await message.answer("Fayl qabul qilinmadi.")
-    except Exception as e:
-        await message.answer(e)
-'''
+                await bot.send_message(user_id, f"{inn} ishchilari registratsiydan o'tmagan")
+    else:
+        print('У админа нет органиции с таким кодом',inn)
+        await message.answer(f"{message.from_user.full_name} {inn} ning adminstratori emas.")
 # @dp.message_handler(content_types=[types.ContentType.DOCUMENT])
 async def scan_doc(message: types.document):
     file_info = await bot.get_file(message.document.file_id)
@@ -356,6 +351,39 @@ async def dirfiles(message: types.Message):
                 f2 = f2 + src + '\n'
         await message.answer(f1)
         logger.info(f"\n{f2}")
+async def dirinn(message: types.Message):
+    user_id = message.from_user.id
+    inn = message.text[6:]
+    if (inn.strip()==''):
+        await message.answer("Komanda noto'g'ri berildi.  (INN ko'rsatilmadi.)")
+    else:
+        logger.info(f"\n{message.from_user.id} /dirx natijasi")
+        path_sep = os.path.sep
+        fil = rootpath() + path_sep + 'files' + path_sep
+        f1 = f"<b>{inn} hisobotlari.</b>\n"
+        f2 = f1
+        for root, dirs, files in os.walk(fil):
+            for filename in files:
+                innf = filename[0:9]
+                #print(f"{inn=}-{innf=}")
+                if inn==innf:
+                    src = fil + filename
+                    f1 = f1 + filename + '\n'
+                    f2 = f2 + src + '\n'
+        await message.answer(f1)
+        logger.info(f"\n{f2}")
+
+async def my(message: Message):
+    # //TODO  my
+    inns = await con.get_rek(message.from_user.id)
+    n = len(inns)
+    s = '<b>Mening tashkilotlarim.</b>\n'
+    for i in range(n):
+        nam = await con.inn_rek(inns[i][0])
+        s = s + f"{inns[i][0]} {nam[0]}" +'\n'
+    logger.info(f"{message.from_user.id}/my results\n{s}")
+    await message.answer(s)
+
 async def deletefile(message: types.Message):
     if message.from_user.id == superuser:  # superUser
         filename = message.text[4:].strip()
@@ -432,14 +460,13 @@ async def drop_org(message: types.Message):
         #print(date_time,'dropping table ORG ...')
         logger.info(f"dropped table ORG ...")
 
-'''
 async def dropadm(message: types.Message):
     if message.from_user.id == superuser:  # superUser
         logger.info(f"\n{message.from_user.id} /dropadm natijasi")
         await con.dropadm()
         await message.answer('dropped table ADMIN ...')
         logger.info(f"{message.from_user.id} dropped table ADMIN ...")
-
+'''
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(adm_reg, commands=["addadmin"], state="*", is_admin=True)
     dp.register_message_handler(adm_del, commands=["deladmin"], state="*", is_admin=True)
@@ -447,16 +474,19 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(user_reg, commands=["reg"], state="*", is_admin=True)
     dp.register_message_handler(clients, commands=["users"], state="*", is_admin=True)
     dp.register_message_handler(send_inn, commands=["addinn"], state="*", is_admin=True)
+    dp.register_message_handler(del_inn, commands=["delinn"], state="*", is_admin=True)
     dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
     dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT], is_admin=True)
     dp.register_message_handler(scan_photo,content_types=[types.ContentType.PHOTO], is_admin=True)
     dp.register_message_handler(dirfiles, commands=["dir"], state="*", is_admin=True)
+    dp.register_message_handler(dirinn, commands=["dirx"], state="*", is_admin=True)
+    dp.register_message_handler(my, commands=["my"], state="*", is_admin=True)
     dp.register_message_handler(deletefile, commands=["del"], state="*", is_admin=True)
     dp.register_message_handler(copydoc, commands=["copy"], state="*", is_admin=True)
     dp.register_message_handler(copybase, commands=["copybase"], state="*", is_admin=True)
     dp.register_message_handler(copylogfile, commands=["copylog"], state="*", is_admin=True)
     dp.register_message_handler(droplogfile, commands=["droplog"], state="*", is_admin=True)
 #    dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
-    dp.register_message_handler(dropadm, commands=["dropadm"], state="*", is_admin=True)
+#    dp.register_message_handler(dropadm, commands=["dropadm"], state="*", is_admin=True)
