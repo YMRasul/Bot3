@@ -176,9 +176,11 @@ async def info_inn(message: Message):
         inns = await con.inn_info()
         s1=s2=s3=0
         s = 'ORG is empty.'
+
         if inns:
             s ='\n'
             for inn in inns:
+                nam = inn[2].ljust(20,'.')
                 r = await con.innUser(inn[0],1)
                 z = await con.innUser(inn[0],0)
 
@@ -186,11 +188,11 @@ async def info_inn(message: Message):
                 s2 = s2 + r[0]
                 s3 = s3 + z[0]
 
-                s = s + f"{inn[0]} {inn[1]} {inn[2]}. ( {r[0]+z[0]},{r[0]},{z[0]} )\n"
+                s = s + f"{inn[0]} {inn[1]} {nam} {r[0]+z[0]},{r[0]},{z[0]}\n"
 
-            s = s + f"Users total {s1},{s2},{s3}\n"
-            await message.answer('<b>' + s+ '</b>')
-            #print(date_time,str(inn[1]) + ' ' + str(inn[0]) + ' ' + inn[2])
+            s = s + f"Users total                      {s1},{s2},{s3}\n"
+            await message.answer('<code>' + s+ '</code>')
+            #print(date_time,str(inn[1]) + ' ' + str(inn[0]) + ' ' + nam)
             logger.info(f"{s}")
         else:
             await message.answer(s)
