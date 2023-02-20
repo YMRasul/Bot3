@@ -28,7 +28,8 @@ async def readxls(mes,filexls, nomertel,inn):
                 mess = ''
                 sss = ''
                 rek = await con.inn_rek(inn)
-                if not None:
+                #print(f"{rek=}")
+                if rek:
                     sss = str(inn) + ':' + rek[0]
                     #logger.info(f"{sss}")
                     sss = sss + '\n'

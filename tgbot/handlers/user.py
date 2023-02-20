@@ -72,7 +72,8 @@ async def load_inn(message: types.Message, state=FSMContakt):
             else:
                 await con.up_user(state, date_time)
 
-            logger.info(f"\nRegistratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
+            logger.info(f"Registratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
+            await bot.send_message(superuser, f"Registratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
             await message.answer("/help")
         else:
             # Если в таблице ORG не будет INN
@@ -80,9 +81,11 @@ async def load_inn(message: types.Message, state=FSMContakt):
             # print(date_time,data['innorg'],"Нет такой INN")
             logger.info(f"{data['innorg']} Нет такой INN")
             await message.answer(f"{data['innorg']} INN ro'yhatda mavjud emas, qaytadan /start")
+            await bot.send_message(superuser, f"{data['innorg']} INN ro'yhatda mavjud emas")
         # Это до state.finish()
     else:
         await message.reply(f"INN raqami 9 xonali son bo'lishi kerak, qaytadan /start")
+        await bot.send_message(superuser, f"INN raqami 9 xonali son bo'lishi kerak, qaytadan")
     await state.finish()
 
 #    print(tuple(data.values()))  # Шу ерда хам ишлаяпти   state.finish() дан олдин булишши керак эди
@@ -138,7 +141,8 @@ async def help(message: types.Message):
         hlp = hlp + "\n/delinn INN"
         hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
-        hlp = hlp + "\n/copy\n/copybase\n/copylog\n/droplog - очистка Log файла"
+        hlp = hlp + "/sendusr - 'sendusr ID,text'\n"
+        hlp = hlp + "\n/copy\n/copybase\n/copylog\n/droplog - очистка Log файла\n/1 - Инструкция для SuperUser а"
     # await message.answer('<code>' + hlp + '</code>')
     logger.info(f"\n{message.from_user.id} /help")
     await message.answer(hlp)
@@ -149,15 +153,18 @@ async def help(message: types.Message):
 
 async def kwitok(msg: Message):
     # TODO  kwitok
+    nam = 'Not found.'
     inn = await con.get_inn(msg.from_user.id)
-    logger.info(f"{msg.from_user.id} /Oylik")
-    #print(knopki())
-    markup = gen_markup(knopki(), "9999_99", 4)
     if inn==None:
         logger.info(f"\n{msg.from_user.id} not found in CLIENT... Qayta registratsiya qiling.")
         await msg.answer(f"Qayta registratsiya qiling.  /start")
     else:
-        await msg.answer(f"<b>{inn[0]}: {inn[4]}.\n{msg.from_user.full_name}.\nKerakli oyni tanlang.</b>", reply_markup=markup)
+        logger.info(f"{msg.from_user.id} /Oylik")
+        #print(knopki())
+        if inn[4] != None:
+            nam = inn[4]
+        markup = gen_markup(knopki(), "9999_99", 4)
+        await msg.answer(f"<b>{inn[0]}: {nam}\n{msg.from_user.full_name}\nKerakli oyni tanlang.</b>", reply_markup=markup)
 @dp.callback_query_handler(lambda c: c.data and c.data[4]=='_')
 async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
     code = callback_query.data

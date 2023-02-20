@@ -154,11 +154,16 @@ async def del_inn(message: Message):
     if message.from_user.id == superuser:  # superUser
         try:
             inn = int(text[0:9])
-            #print(f"{inn=}")
+
+            fk = await con.fkeys()
+
+            await message.answer(f"{message.from_user.id}: PRAGMA foreign_keys is {fk[0][0]}")
+            logger.info(f"{message.from_user.id}: PRAGMA foreign_keys is {fk}")
+
             await con.inn_del(inn)
-            await message.answer(f"Delete INN {inn}")
-            #print(date_time,inn,prz,nam,"Delete INN " + str(inn))
-            logger.info(f"{message.from_user.id}: Deleted INN {inn}")
+
+            await message.answer(f"Delete INN {inn} CASCADE admin.ORG={inn}")
+            logger.info(f"{message.from_user.id}: Deleted INN {inn} CASCADE admin.ORG={inn}")
         except:
             await message.answer(mess)
     else:
@@ -230,8 +235,33 @@ async def send_adm(message: Message):
                     #print(date_time,"Admin " + s + " не активен")
                     logger.info(f"Admin {s} not active")
 
-# @dp.message_handler(commands=["sendall"], is_admin=True)
 
+async def send_usr(message: Message):
+    '''
+    Рассылка User у
+    '''
+    text = message.text[9:].strip()
+    ms = [i.strip() for i in text.split(',')]
+    s1 = 'To User'
+    try:
+        id = int(ms[0])
+        r = await con.user_exists2(id)
+        # idp,fio,phone,innorg
+        if r:
+            if ((message.from_user.id == superuser) and (ms[1] != '')):  # superUser
+                try:
+                    if message.chat.type == 'private':
+                        await bot.send_message(id, ms[1])
+                        await bot.send_message(message.from_user.id,f"{s1} {id} {r[2]} {r[1]}: {ms[1]}")
+                        logger.info(f"{message.from_user.id} {s1} {id} {r[1]}: {ms[1]}")
+                except:
+                    await bot.send_message(message.from_user.id, f"User {id} не активен")
+        else:
+            await bot.send_message(message.from_user.id, f"{id} нет такой User.")
+    except:
+        await bot.send_message(message.from_user.id, f"ID {ms[0]} noto'g'ri.")
+
+# @dp.message_handler(commands=["sendall"], is_admin=True)
 async def org(ms):
     kn =[]
     ln = len(ms)
@@ -451,6 +481,12 @@ async def droplogfile(message: types.Message):
             file.write("Start Log!!!\n")
         logger.info(f"Start Log {src}")
         await message.answer(f"dropped file {src}")
+
+async def ruko(message: types.Message):
+    if message.from_user.id == superuser:  # superUser
+        s = f"1. Добавить INN\n2. Регистрация Usera\n3. Назначить Userа как Admin\n4. Проверка отправление отчета (Admin)"
+        await message.answer(s)
+
 '''
 async def drop_org(message: types.Message):
     if message.from_user.id == superuser:  # superUser
@@ -479,6 +515,7 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(del_inn, commands=["delinn"], state="*", is_admin=True)
     dp.register_message_handler(info_inn, commands=["inns"], state="*", is_admin=True)
     dp.register_message_handler(send_adm, commands=["sendadm"], state="*", is_admin=True)
+    dp.register_message_handler(send_usr, commands=["sendusr"], state="*", is_admin=True)
     dp.register_message_handler(send_all, commands=["sendall"], state="*", is_admin=True)
     dp.register_message_handler(scan_doc, content_types=[types.ContentType.DOCUMENT], is_admin=True)
     dp.register_message_handler(scan_photo,content_types=[types.ContentType.PHOTO], is_admin=True)
@@ -490,5 +527,6 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(copybase, commands=["copybase"], state="*", is_admin=True)
     dp.register_message_handler(copylogfile, commands=["copylog"], state="*", is_admin=True)
     dp.register_message_handler(droplogfile, commands=["droplog"], state="*", is_admin=True)
+    dp.register_message_handler(ruko, commands=["1"], state="*", is_admin=True)
 #    dp.register_message_handler(drop_org, commands=["droporg"], state="*", is_admin=True)
 #    dp.register_message_handler(dropadm, commands=["dropadm"], state="*", is_admin=True)

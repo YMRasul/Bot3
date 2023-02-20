@@ -6,16 +6,16 @@ class Database:
     def __init__(self, dbFile):
         self.base = sq.connect(dbFile)
         self.cur = self.base.cursor()
-        self.createTables()
+        tables = '''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER,innorg INTEGER,fio TEXT,prz INTEGER);
+        CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER, nam TEXT);
+        PRAGMA foreign_keys=on;
+        CREATE TABLE  IF NOT EXISTS admin ( admin_id INTEGER NOT NULL, org INTEGER NOT NULL, fio TEXT, PRIMARY KEY ( admin_id, org ),FOREIGN KEY (org ) REFERENCES org (inn) ON DELETE CASCADE);'''
+        #print("tables=",tables)
+        self.cur.executescript(tables)
 
-    def createTables(self):
-        tables = [
-            '''CREATE TABLE IF NOT EXISTS client (idp INTEGER PRIMARY KEY NOT NULL, phone INTEGER,innorg INTEGER,fio TEXT,prz INTEGER)''',
-            '''CREATE TABLE IF NOT EXISTS org (inn INTEGER PRIMARY KEY NOT NULL, prz INTEGER, nam TEXT)''',
-            '''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id, org ) )'''
-        ]
-        for tab in tables:
-            self.createTable(tab)
+    async def fkeys(self):
+        r = self.cur.execute('PRAGMA foreign_keys').fetchall()
+        return r
 
     def message(self, mess):
         print(mess)
@@ -24,10 +24,6 @@ class Database:
         self.cur.close()
         self.base.close()
 
-    def createTable(self, table):
-        with self.base:
-            #print(table)
-            self.cur.execute(table)
 
     async def user_exists(self, state):
         async with state.proxy() as data:
@@ -36,6 +32,9 @@ class Database:
             r = self.cur.execute('SELECT idp FROM client WHERE idp == ?', (t[0],)).fetchmany(1)
             return bool(len(r))
 
+    async def user_exists2(self, id):
+        with self.base:
+            return self.cur.execute('SELECT idp,fio,phone,innorg FROM client WHERE idp == ?', (id,)).fetchone()
     async def add_user(self, state, time):
         async with state.proxy() as data:
             t = tuple(data.values())
@@ -121,13 +120,18 @@ class Database:
     async def admins_info(self):
         with self.base:
             return self.cur.execute('select admin_id,fio,org,(select nam FROM org WHERE (admin.org=org.inn))\
-            from admin order by org,admin_id').fetchall()
+            from admin order by admin_id,org').fetchall()
     async def inn_info(self):
         with self.base:
             return self.cur.execute('select inn,prz,nam from org order by inn').fetchall()
     async def inn_rek(self,inn):
         with self.base:
             return self.cur.execute('select nam from org WHERE inn == ?', (inn,)).fetchone()
+
+    def createTable(self, table):
+        with self.base:
+            print(table)
+            self.cur.execute(table)
     async def droporg(self):
         with self.base:
             self.cur.execute('DROP TABLE org')
@@ -135,8 +139,18 @@ class Database:
             self.createTable(s)
     async def dropadm(self):
         with self.base:
-            self.cur.execute('DROP TABLE admin')
-            s ='''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id, org ) )'''
+            s = 'DROP TABLE admin'
+
+            print(s)
+            self.cur.execute(s)
+
+            s = 'PRAGMA foreign_keys=on'
+            print(s)
+            self.cur.execute(s)
+            s = '''CREATE TABLE admin ( admin_id INTEGER NOT NULL, org INTEGER NOT NULL, fio TEXT, PRIMARY KEY ( admin_id, org ),\
+			 FOREIGN KEY (org ) REFERENCES org (inn) ON DELETE CASCADE)'''
+            #s ='''CREATE TABLE IF NOT EXISTS admin (admin_id INTEGER NOT NULL,org INTEGER NOT NULL,fio TEXT, PRIMARY KEY (admin_id, org ) )'''
+            print(s)
             self.createTable(s)
 
     async def inn_add(self, inn, prz,nam):
@@ -150,7 +164,9 @@ class Database:
                 #print("Insert",inn,prz,nam)
     async def inn_del(self, inn):
         with self.base:
-            self.cur.execute('DELETE FROM admin WHERE org==?', (inn,))
+            #self.cur.execute('DELETE FROM admin WHERE org==?', (inn,))
+
+            # из таблицы admin записи удальяются каскадно
             self.cur.execute('DELETE FROM org WHERE inn==?', (inn,))
         #print("Delete cascade", inn)
     async def reg_id(self, id, inn, tel, fio):

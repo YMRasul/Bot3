@@ -2,4 +2,7 @@ __pycache__/
 env/
 .idea/*
 env
+.env
+photos/
+files/
 bot_run.bat
