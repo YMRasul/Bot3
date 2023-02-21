@@ -18,9 +18,9 @@ async def adm_reg(message: Message):
             fio = ms[2]
 
             if await con.admin_add(id, innorg, fio) == None:
-                await message.answer(f"{id} {innorg} registrasiya qilindi")
+                await message.answer(f"{id} {innorg} admin registrasiya qilindi")
                 #print(date_time,'Регистрация ', id, innorg, fio)
-                logger.info(f"\n{message.from_user.id}: Registrasiya {id} {innorg} {fio}")
+                logger.info(f"\n{message.from_user.id}: Registrasiya admina {id} {innorg} {fio}")
             else:
                 await message.answer(f"{id} {innorg} rekvizitlari tuzatildi")
                 logger.info(f"\n{message.from_user.id}: {id} {innorg}  rekvizitlri {fio} ga almashdi")
@@ -242,17 +242,24 @@ async def send_usr(message: Message):
     '''
     text = message.text[9:].strip()
     ms = [i.strip() for i in text.split(',')]
-    s1 = 'To User'
+    s1 = 'to User'
+    s2 = ''
     try:
         id = int(ms[0])
         r = await con.user_exists2(id)
         # idp,fio,phone,innorg
         if r:
             if ((message.from_user.id == superuser) and (ms[1] != '')):  # superUser
+
+                x = await con.user_exists2(message.from_user.id)
+                if x:
+                    s2 = f"Message from {x[1]}"
+                #print(x)
+
                 try:
                     if message.chat.type == 'private':
-                        await bot.send_message(id, ms[1])
-                        await bot.send_message(message.from_user.id,f"{s1} {id} {r[2]} {r[1]}: {ms[1]}")
+                        await bot.send_message(id,f"{s2}: {ms[1]}")
+                        await bot.send_message(message.from_user.id,f"{s2} {s1} {id} {r[2]} {r[1]}: {ms[1]}")
                         logger.info(f"{message.from_user.id} {s1} {id} {r[1]}: {ms[1]}")
                 except:
                     await bot.send_message(message.from_user.id, f"User {id} не активен")

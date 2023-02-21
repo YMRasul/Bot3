@@ -67,14 +67,18 @@ async def load_inn(message: types.Message, state=FSMContakt):
     # Это до state.finish()
     if innz !=0:
         if await con.inn_exists(state):
-            if not await con.user_exists(state):
-                await con.add_user(state, date_time)
-            else:
-                await con.up_user(state, date_time)
+            try:
+                if not await con.user_exists(state):
+                    await con.add_user(state, date_time)
+                else:
+                    await con.up_user(state, date_time)
 
-            logger.info(f"Registratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
-            await bot.send_message(superuser, f"Registratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
-            await message.answer("/help")
+                logger.info(f"Registratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
+                await bot.send_message(superuser, f"Registratsiya: {data['innorg']} {data['idp']} {data['phone']} {data['fio']}")
+                await message.answer(f"Registratsiyadan o'tdingiz. /help")
+            except:
+                await message.reply(f"Registratsiya ketmadi, qaytadan /start")
+                logger.info(f"Registratsiya ketmadi, {data}")
         else:
             # Если в таблице ORG не будет INN
             # не будем регистрироват
@@ -109,6 +113,10 @@ async def rek(message: types.Message):
     logger.info(f"\n{message.from_user.id} /rek rekvizitlarim {s}")
     await message.answer(s)
 
+async def msg(message: types.Message):
+    logger.info(f"Admin uchun User {message.from_user.id} {message.from_user.full_name} dan {message.text}")
+    await bot.send_message(superuser, f"User: {message.from_user.id} {message.from_user.full_name}\n {message.text}")
+
 
 # @dp.message_handler(commands=["help"])
 async def ok(message: types.Message):
@@ -132,10 +140,10 @@ async def ok(message: types.Message):
 async def help(message: types.Message):
     # TODO  /help
     admins_tab = await con.admins()
-    hlp = "/start - Registratsiya\n/rek  - rekvizitlarim\n/ok - Status\n"
+    hlp = "/start - Registratsiya\n/rek  - rekvizitlarim\n/ok - Status\n/msg Text - muallifga Text yuborish\n"
     if (message.from_user.id  in admins_tab):
-        hlp = hlp + "\n/sendall INN Text - 'INN odamlariga Text yuborish'"
-        hlp = hlp + "\n/dirx INN  - 'INN hisobotlarini ko'rish'\n/my  - mening tashkilotlarim\n"
+        hlp = hlp + "\n/sendall INN Text - INN odamlariga Text yuborish"
+        hlp = hlp + "\n/dirx INN  - INN hisobotlarini ko'rish\n/my  - mening tashkilotlarim\n"
     if message.from_user.id == superuser:  # superUser
         hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/users - список Userов\n/addinn INN N namorg"
         hlp = hlp + "\n/delinn INN"
@@ -216,6 +224,7 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(load_inn, state=FSMContakt.innorg)
     dp.register_message_handler(cancel_hendler, state="*", commands=["otmena"])
     dp.register_message_handler(cancel_hendler, Text(equals="otmena", ignore_case=True), state="*")
+    dp.register_message_handler(msg, commands=["msg"])
     dp.register_message_handler(ok, commands=["ok"])
     dp.register_message_handler(rek, commands=["rek"])
     dp.register_message_handler(help, commands=["help","?"])
