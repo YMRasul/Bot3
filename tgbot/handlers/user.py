@@ -114,9 +114,13 @@ async def rek(message: types.Message):
     await message.answer(s)
 
 async def msg(message: types.Message):
-    logger.info(f"Admin uchun User {message.from_user.id} {message.from_user.full_name} dan {message.text}")
-    await bot.send_message(superuser, f"User: {message.from_user.id} {message.from_user.full_name}\n {message.text}")
-
+    text = message.text[5:].strip()
+    if text == '':
+        logger.info(f"Admin uchun User {message.from_user.id} {message.from_user.full_name} dan {message.text}")
+        await message.reply(f"Xato.  masalan /msg Assalomy alaykum deb yozing.")
+    else:
+        logger.info(f"Admin uchun User {message.from_user.id} {message.from_user.full_name} dan {text}")
+        await bot.send_message(superuser, f"User: {message.from_user.id} {message.from_user.full_name}\n {text}")
 
 # @dp.message_handler(commands=["help"])
 async def ok(message: types.Message):
@@ -147,12 +151,12 @@ async def help(message: types.Message):
     if message.from_user.id == superuser:  # superUser
         hlp = hlp + "\nSuperuser\n\n/reg  'INN, ID, TEl, FIO' регистрация User a\n/users - список Userов\n/addinn INN N namorg"
         hlp = hlp + "\n/delinn INN"
-        hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/del имя_файла -'Удаление файла'\n"
+        hlp = hlp + "\n/inns - 'список ORG'\n/dir - 'список файлов'\n/dir 2022_01 'список файлов за месяц'  \n/del имя_файла -'Удаление файла'\n"
         hlp = hlp + "\n/addadmin - 'addadmin ID,INNORG,FIO'\n/deladmin - 'deladmin ID'\n/admins\n/sendadm - 'sendadm text'\n"
         hlp = hlp + "/sendusr - 'sendusr ID,text'\n"
         hlp = hlp + "\n/copy\n/copybase\n/copylog\n/droplog - очистка Log файла\n/1 - Инструкция для SuperUser а"
     # await message.answer('<code>' + hlp + '</code>')
-    logger.info(f"\n{message.from_user.id} /help")
+    logger.info(f"{message.from_user.id} /help")
     await message.answer(hlp)
 
     btn2 = types.KeyboardButton(text="/Oylik")
@@ -164,7 +168,7 @@ async def kwitok(msg: Message):
     nam = 'Not found.'
     inn = await con.get_inn(msg.from_user.id)
     if inn==None:
-        logger.info(f"\n{msg.from_user.id} not found in CLIENT... Qayta registratsiya qiling.")
+        logger.info(f"{msg.from_user.id} not found in CLIENT... Qayta registratsiya qiling.")
         await msg.answer(f"Qayta registratsiya qiling.  /start")
     else:
         logger.info(f"{msg.from_user.id} /Oylik")
@@ -201,7 +205,7 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
             for ms in rt[1]:
                 await callback_query.message.answer('<pre>' + ms + '</pre>')
             await bot.send_message(superuser, f"User: {inn} {callback_query.from_user.id} {callback_query.from_user.full_name} {code} kwitokni oldi.")
-            logger.info(f"{inn} {callback_query.from_user.id} {code} kwitokni oldi.")
+            logger.info(f"{callback_query.from_user.id} {inn} {code} kwitokni oldi.")
         else:
             await callback_query.message.answer(rt[1][0])
             await bot.send_message(superuser, f"User: {callback_query.from_user.id} {callback_query.from_user.full_name} {rt[1][0]}")
@@ -211,10 +215,10 @@ async def process_callback_kb1btn1(callback_query: types.CallbackQuery):
         await bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
         logger.info(f"{callback_query.from_user.id}  InlineKeyboards deleted.")
     except:
-        logger.info(f"Ощибка при удаление InlineKeyboards.")
+        logger.info(f"{callback_query.from_user.id} Ощибка при удаление InlineKeyboards.")
 
 async def echo_info(message: types.Message):
-    logger.info(f"{message.from_user.id}  Noma'lum komanda berildi")
+    logger.info(f"{message.from_user.id}  Noma'lum komanda berildi. {message.text}")
     await message.answer("Noma'lum komanda berildi. /help")
 
 

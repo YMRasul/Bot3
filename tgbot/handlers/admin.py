@@ -342,7 +342,11 @@ async def scan_doc(message: types.document):
                 with open(src, 'wb') as new_file:
                     new_file.write(downloaded_file.getvalue())
                 logger.info(f"{message.from_user.id} {inn} {r[0]} сохранил как {src}")
-                await message.answer("Men buni saqlab qoydim, rahmat!")
+
+                #await message.answer("Men buni saqlab qoydim, rahmat!")
+                #inn
+                z = await con.inn_rek(inn)
+                await message.answer(f"{message.document.file_name}  hisobot\n{z[0]} uchun saqlab qo'yildi.")
                 await bot.send_message(superuser, f"{message.document.file_name} User:{message.from_user.id} {inn} {r[0]} tomonidan yuborildi")
             else:
                 logger.info(f"User={message.from_user.id} INN={inn} ga adminstartor emas...")
@@ -378,20 +382,34 @@ async def scan_photo(message: types.file):
 
 async def dirfiles(message: types.Message):
     if message.from_user.id == superuser:  # superUser
+        cm = message.text[5:]
         logger.info(f"\n{message.from_user.id} /dir natijasi")
-        path_sep = os.path.sep
-        fil = rootpath() + path_sep + 'files' + path_sep
-        f1 =''
-        f2 =''
-        for root, dirs, files in os.walk(fil):
-            for filename in files:
-                src = fil + filename
-                f1 = f1  +  filename +'\n'
-                f2 = f2 + src + '\n'
+        if (cm.strip() == ''):
+            path_sep = os.path.sep
+            fil = rootpath() + path_sep + 'files' + path_sep
+            f1 =''
+            f2 =''
+            for root, dirs, files in os.walk(fil):
+                for filename in files:
+                    src = fil + filename
+                    f1 = f1  +  filename +'\n'
+                    f2 = f2 + src + '\n'
+        else:
+            gm = cm.strip()
+            path_sep = os.path.sep
+            fil = rootpath() + path_sep + 'files' + path_sep
+            f1 =''
+            f2 =''
+            for root, dirs, files in os.walk(fil):
+                for filename in files:
+                    if filename[10:17]==gm:
+                        src = fil + filename
+                        f1 = f1  +  filename +'\n'
+                        f2 = f2 + src + '\n'
         await message.answer(f1)
         logger.info(f"\n{f2}")
 async def dirinn(message: types.Message):
-    user_id = message.from_user.id
+    #user_id = message.from_user.id
     inn = message.text[6:]
     if (inn.strip()==''):
         await message.answer("Komanda noto'g'ri berildi.  (INN ko'rsatilmadi.)")
