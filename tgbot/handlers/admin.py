@@ -392,7 +392,9 @@ async def dirfiles(message: types.Message):
             for root, dirs, files in os.walk(fil):
                 for filename in files:
                     src = fil + filename
-                    f1 = f1  +  filename +'\n'
+                    x = filename[0:9]
+                    nam = await con.inn_rek(x)
+                    f1 = f1  +  f"{filename}  {nam[0]}" + '\n'
                     f2 = f2 + src + '\n'
         else:
             gm = cm.strip()
@@ -404,7 +406,9 @@ async def dirfiles(message: types.Message):
                 for filename in files:
                     if filename[10:17]==gm:
                         src = fil + filename
-                        f1 = f1  +  filename +'\n'
+                        x = filename[0:9]
+                        nam = await con.inn_rek(x)
+                        f1 = f1 + f"{filename}  {nam[0]}" + '\n'
                         f2 = f2 + src + '\n'
         await message.answer(f1)
         logger.info(f"\n{f2}")

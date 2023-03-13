@@ -63,7 +63,7 @@ async def readxls(mes,filexls, nomertel,inn):
             ret.append(msg)
 
     except FileNotFoundError as err:
-        sss = f"{mes}  ma'lumotlari tayyor emas !"
+        sss = f"{mes} uchun ma'lumot topilmadi"
         msg.append(sss)
         ret.append(msg)
         logger.info(f"{err}")
